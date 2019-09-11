@@ -53,7 +53,7 @@ extension CameraCaptureOutput: AVCapturePhotoCaptureDelegate {
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         guard let imageData = photo.fileDataRepresentation() else { return }
         guard let image = UIImage(data: imageData) else { return }
-        guard let fixedImage = image.fixedOrientation() else { return }
+//        guard let fixedImage = image.fixedOrientation() else { return }
         takePhotoCompletion?(image)
     }
 }
