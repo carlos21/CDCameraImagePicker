@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "CDCameraImagePicker"
-  s.version      = "0.1"
+  s.version      = "0.3"
   s.summary      = "Photos picker"
   s.description  = "Photos picker"
   s.homepage     = "https://github.com/carlos21/CDCameraImagePicker"
