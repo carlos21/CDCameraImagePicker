@@ -53,13 +53,13 @@ extension CameraCaptureOutput: AVCapturePhotoCaptureDelegate {
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         guard let imageData = photo.fileDataRepresentation() else { return }
         guard let image = UIImage(data: imageData) else { return }
-//        guard let fixedImage = image.fixedOrientation() else { return }
-        takePhotoCompletion?(image)
+        let transformedimage = image.transformedImage(deviceOrientation: UIDevice.current.orientation)
+        takePhotoCompletion?(transformedimage)
     }
 }
 
 //extension AVCaptureVideoOrientation {
-//    
+//
 //    var text: String {
 //        switch self {
 //        case .landscapeLeft:
@@ -70,6 +70,30 @@ extension CameraCaptureOutput: AVCapturePhotoCaptureDelegate {
 //            return "portrait"
 //        case .portraitUpsideDown:
 //            return "portraitUpsideDown"
+//        }
+//    }
+//}
+//
+//extension UIImage {
+//
+//    var imageOrientationText: String {
+//        switch imageOrientation {
+//        case .down:
+//            return "down"
+//        case .downMirrored:
+//            return "downMirrored"
+//        case .left:
+//            return "left"
+//        case .leftMirrored:
+//            return "leftMirrored"
+//        case .right:
+//            return "right"
+//        case .rightMirrored:
+//            return "rightMirrored"
+//        case .up:
+//            return "up"
+//        case .upMirrored:
+//            return "upMirrored"
 //        }
 //    }
 //}

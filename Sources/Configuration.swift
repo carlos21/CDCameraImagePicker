@@ -49,7 +49,6 @@ import UIKit
     @objc public var flashButtonAlwaysHidden = false
     @objc public var managesAudioSession = true
     @objc public var allowPinchToZoom = true
-    @objc public var allowedOrientations = UIInterfaceOrientationMask.all
     @objc public var allowVolumeButtonsToTakePicture = true
     @objc public var useLowResolutionPreviewImage = false
     
@@ -68,43 +67,5 @@ import UIKit
 // MARK: - Orientation
 extension Configuration {
 
-    @objc public var rotationTransform: CGAffineTransform {
-        let currentOrientation = UIDevice.current.orientation
-        
-        // check if current orientation is allowed
-        switch currentOrientation {
-        case .portrait:
-            if allowedOrientations.contains(.portrait) {
-                Helper.previousOrientation = currentOrientation
-            }
-        case .portraitUpsideDown:
-            if allowedOrientations.contains(.portraitUpsideDown) {
-                Helper.previousOrientation = currentOrientation
-            }
-        case .landscapeLeft:
-            if allowedOrientations.contains(.landscapeLeft) {
-                Helper.previousOrientation = currentOrientation
-            }
-        case .landscapeRight:
-            if allowedOrientations.contains(.landscapeRight) {
-                Helper.previousOrientation = currentOrientation
-            }
-        default: break
-        }
-        
-        // set default orientation if current orientation is not allowed
-        if Helper.previousOrientation == .unknown {
-            if allowedOrientations.contains(.portrait) {
-                Helper.previousOrientation = .portrait
-            } else if allowedOrientations.contains(.landscapeLeft) {
-                Helper.previousOrientation = .landscapeLeft
-            } else if allowedOrientations.contains(.landscapeRight) {
-                Helper.previousOrientation = .landscapeRight
-            } else if allowedOrientations.contains(.portraitUpsideDown) {
-                Helper.previousOrientation = .portraitUpsideDown
-            }
-        }
-        
-        return Helper.getTransform(fromDeviceOrientation: Helper.previousOrientation)
-    }
+    
 }

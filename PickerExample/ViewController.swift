@@ -11,7 +11,10 @@ import CDCameraImagePicker
 import Photos
 
 class ViewController: UIViewController {
-
+    
+    
+    @IBOutlet weak var imageView: UIImageView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -36,7 +39,12 @@ class ViewController: UIViewController {
 extension ViewController: CDCameraImagePickerControllerDelegate {
     
     func imagePickerDoneDidPress(_ imagePicker: CDCameraImagePickerController, assets: [PHAsset]) {
+        
+    }
+    
+    func imagePickerWrapperDidPress(_ imagePicker: CDCameraImagePickerController, images: [UIImage: CLLocation?]) {
         imagePicker.dismiss(animated: true, completion: nil)
+        imageView.image = images.first?.key
     }
     
     func imagePickerCancelDidPress(_ imagePicker: CDCameraImagePickerController) {

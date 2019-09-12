@@ -3,6 +3,7 @@ import AVFoundation
 
 struct Helper {
 
+    static var allowedOrientations = UIInterfaceOrientationMask.all
     static var previousOrientation = UIDeviceOrientation.unknown
     
     static func getTransform(fromDeviceOrientation orientation: UIDeviceOrientation) -> CGAffineTransform {
@@ -56,5 +57,45 @@ struct Helper {
         default:
             return UIScreen.main.bounds.size
         }
+    }
+    
+    static var rotationTransform: CGAffineTransform {
+        let currentOrientation = UIDevice.current.orientation
+        
+        // check if current orientation is allowed
+        switch currentOrientation {
+        case .portrait:
+            if allowedOrientations.contains(.portrait) {
+                Helper.previousOrientation = currentOrientation
+            }
+        case .portraitUpsideDown:
+            if allowedOrientations.contains(.portraitUpsideDown) {
+                Helper.previousOrientation = currentOrientation
+            }
+        case .landscapeLeft:
+            if allowedOrientations.contains(.landscapeLeft) {
+                Helper.previousOrientation = currentOrientation
+            }
+        case .landscapeRight:
+            if allowedOrientations.contains(.landscapeRight) {
+                Helper.previousOrientation = currentOrientation
+            }
+        default: break
+        }
+        
+        // set default orientation if current orientation is not allowed
+        if Helper.previousOrientation == .unknown {
+            if allowedOrientations.contains(.portrait) {
+                Helper.previousOrientation = .portrait
+            } else if allowedOrientations.contains(.landscapeLeft) {
+                Helper.previousOrientation = .landscapeLeft
+            } else if allowedOrientations.contains(.landscapeRight) {
+                Helper.previousOrientation = .landscapeRight
+            } else if allowedOrientations.contains(.portraitUpsideDown) {
+                Helper.previousOrientation = .portraitUpsideDown
+            }
+        }
+        
+        return Helper.getTransform(fromDeviceOrientation: Helper.previousOrientation)
     }
 }

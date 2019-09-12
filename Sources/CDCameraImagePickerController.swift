@@ -508,7 +508,7 @@ extension CDCameraImagePickerController: CameraViewDelegate {
     }
     
     func applyOrientationTransforms() {
-        let rotate = configuration.rotationTransform
+        let rotate = Helper.rotationTransform
         
         UIView.animate(withDuration: 0.25, animations: { [weak self] in
             guard let self = self else { return }
