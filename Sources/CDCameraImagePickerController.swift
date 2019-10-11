@@ -31,7 +31,7 @@ open class CDCameraImagePickerController: UIViewController {
     var initialFrame: CGRect?
     var initialContentOffset: CGPoint?
     var numberOfCells: Int?
-    var statusBarHidden = true
+    public var statusBarHidden: Bool?
     
     fileprivate var isTakingPicture = false
     
@@ -140,7 +140,6 @@ open class CDCameraImagePickerController: UIViewController {
             _ = try? AVAudioSession.sharedInstance().setActive(true)
         }
         
-        statusBarHidden = UIApplication.shared.isStatusBarHidden
         handleRotation(nil)
     }
     
@@ -176,16 +175,16 @@ open class CDCameraImagePickerController: UIViewController {
 //        switch UIDevice.current.orientation {
 //        case .landscapeLeft:
 //            return .landscapeRight
-//            
+//
 //        case .landscapeRight:
 //            return .landscapeLeft
-//            
+//
 //        case .portrait:
 //            return .portrait
-//            
+//
 //        case .portraitUpsideDown:
 //            return .portraitUpsideDown
-//            
+//
 //        default:
 //            return .portrait
 //        }
@@ -333,7 +332,7 @@ open class CDCameraImagePickerController: UIViewController {
     // MARK: - Helpers
     
     open override var prefersStatusBarHidden: Bool {
-        return statusBarHidden
+        return statusBarHidden ?? UIApplication.shared.isStatusBarHidden
     }
     
     open func collapseGalleryView(_ completion: (() -> Void)?) {
