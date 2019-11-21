@@ -4,14 +4,14 @@ import Photos
 
 public protocol CDCameraImagePickerControllerDelegate: NSObjectProtocol {
     
-    func imagePickerWrapperDidPress(_ imagePicker: CDCameraImagePickerController, images: [UIImage: CLLocation?])
+    func imagePickerWrapperDidPress(_ imagePicker: CDCameraImagePickerController, images: [PhotoLocation])
     func imagePickerDoneDidPress(_ imagePicker: CDCameraImagePickerController, assets: [PHAsset])
     func imagePickerCancelDidPress(_ imagePicker: CDCameraImagePickerController)
 }
 
 public extension CDCameraImagePickerControllerDelegate {
     
-    func imagePickerWrapperDidPress(_ imagePicker: CDCameraImagePickerController, images: [UIImage: CLLocation?]) { }
+    func imagePickerWrapperDidPress(_ imagePicker: CDCameraImagePickerController, images: [PhotoLocation]) { }
 }
 
 open class CDCameraImagePickerController: UIViewController {
@@ -425,15 +425,17 @@ extension CDCameraImagePickerController: BottomContainerViewDelegate {
             requestOptions.isNetworkAccessAllowed = true
             requestOptions.isSynchronous = true
             
-            var images: [UIImage: CLLocation?] = [:]
+            var images = [PhotoLocation]()
             for asset in stack.assets {
-                PHImageManager.default().requestImage(for: asset,
-                                                      targetSize: PHImageManagerMaximumSize,
-                                                      contentMode: PHImageContentMode.default,
-                                                      options: requestOptions,
-                                                      resultHandler: { (currentImage, info) in
-                                                        guard let image = currentImage else { return }
-                                                        images[image] = asset.location
+                PHImageManager.default().requestImage(
+                    for: asset,
+                    targetSize: PHImageManagerMaximumSize,
+                    contentMode: PHImageContentMode.default,
+                    options: requestOptions,
+                    resultHandler: { (currentImage, info) in
+                        guard let image = currentImage else { return }
+                        let photoLocation = PhotoLocation(image: image, location: asset.location)
+                        images.append(photoLocation)
                 })
             }
             
