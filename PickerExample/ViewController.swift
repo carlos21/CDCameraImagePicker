@@ -42,11 +42,6 @@ extension ViewController: CDCameraImagePickerControllerDelegate {
         
     }
     
-    func imagePickerWrapperDidPress(_ imagePicker: CDCameraImagePickerController, images: [UIImage: CLLocation?]) {
-        imagePicker.dismiss(animated: true, completion: nil)
-        imageView.image = images.first?.key
-    }
-    
     func imagePickerCancelDidPress(_ imagePicker: CDCameraImagePickerController) {
         imagePicker.dismiss(animated: true, completion: nil)
     }

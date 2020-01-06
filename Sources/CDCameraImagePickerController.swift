@@ -4,14 +4,8 @@ import Photos
 
 public protocol CDCameraImagePickerControllerDelegate: NSObjectProtocol {
     
-    func imagePickerWrapperDidPress(_ imagePicker: CDCameraImagePickerController, images: [PhotoLocation])
     func imagePickerDoneDidPress(_ imagePicker: CDCameraImagePickerController, assets: [PHAsset])
     func imagePickerCancelDidPress(_ imagePicker: CDCameraImagePickerController)
-}
-
-public extension CDCameraImagePickerControllerDelegate {
-    
-    func imagePickerWrapperDidPress(_ imagePicker: CDCameraImagePickerController, images: [PhotoLocation]) { }
 }
 
 open class CDCameraImagePickerController: UIViewController {
@@ -417,30 +411,6 @@ extension CDCameraImagePickerController: BottomContainerViewDelegate {
     
     func doneButtonDidPress() {
         delegate?.imagePickerDoneDidPress(self, assets: stack.assets)
-        
-        if let method = delegate?.imagePickerWrapperDidPress {
-            let requestOptions = PHImageRequestOptions()
-            requestOptions.resizeMode = PHImageRequestOptionsResizeMode.fast
-            requestOptions.deliveryMode = PHImageRequestOptionsDeliveryMode.highQualityFormat
-            requestOptions.isNetworkAccessAllowed = true
-            requestOptions.isSynchronous = true
-            
-            var images = [PhotoLocation]()
-            for asset in stack.assets {
-                PHImageManager.default().requestImage(
-                    for: asset,
-                    targetSize: PHImageManagerMaximumSize,
-                    contentMode: PHImageContentMode.default,
-                    options: requestOptions,
-                    resultHandler: { (currentImage, info) in
-                        guard let image = currentImage else { return }
-                        let photoLocation = PhotoLocation(image: image, location: asset.location)
-                        images.append(photoLocation)
-                })
-            }
-            
-            method(self, images)
-        }
     }
     
     func cancelButtonDidPress() {
