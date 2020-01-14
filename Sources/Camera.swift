@@ -143,8 +143,8 @@ class Camera {
         }
     }
     
-    func takePhoto(_ previewLayer: AVCaptureVideoPreviewLayer, completion: (() -> Void)? = nil) {
-        cameraOutput.takePhoto(previewLayer: previewLayer) { [weak self] image in
+    func takePhoto(_ previewLayer: AVCaptureVideoPreviewLayer, orientation: UIInterfaceOrientation, completion: (() -> Void)? = nil) {
+        cameraOutput.takePhoto(previewLayer: previewLayer, orientation: orientation) { [weak self] image in
             guard let image = image else {
                 completion?()
                 return

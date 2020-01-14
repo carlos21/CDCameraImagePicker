@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3504555E23CD318300F5B56D /* UIDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3504555D23CD318300F5B56D /* UIDevice.swift */; };
 		35434A8B232805CB000AB511 /* ImageGalleryViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35434A6E232805CB000AB511 /* ImageGalleryViewDataSource.swift */; };
 		35434A8D232805CB000AB511 /* ImageGalleryLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35434A70232805CB000AB511 /* ImageGalleryLayout.swift */; };
 		35434A8E232805CB000AB511 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35434A72232805CB000AB511 /* CameraView.swift */; };
@@ -78,6 +79,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3504555D23CD318300F5B56D /* UIDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIDevice.swift; sourceTree = "<group>"; };
 		35434A6E232805CB000AB511 /* ImageGalleryViewDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageGalleryViewDataSource.swift; sourceTree = "<group>"; };
 		35434A70232805CB000AB511 /* ImageGalleryLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageGalleryLayout.swift; sourceTree = "<group>"; };
 		35434A72232805CB000AB511 /* CameraView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
@@ -245,6 +247,7 @@
 				3543A42023295777008B2188 /* UIImage.swift */,
 				3543A42223296C18008B2188 /* HandleRotationProtocol.swift */,
 				35BE268823862E6D00D69B8E /* PhotoLocation.swift */,
+				3504555D23CD318300F5B56D /* UIDevice.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -441,6 +444,7 @@
 				35434AAB23282BF3000AB511 /* Camera.swift in Sources */,
 				35434AA623282361000AB511 /* ImageGalleryViewCell.swift in Sources */,
 				35434A97232805CC000AB511 /* Configuration.swift in Sources */,
+				3504555E23CD318300F5B56D /* UIDevice.swift in Sources */,
 				3543A42323296C18008B2188 /* HandleRotationProtocol.swift in Sources */,
 				8933C7851EB5B820000D00A4 /* CDCameraImagePicker.swift in Sources */,
 				35434A9C232805CC000AB511 /* BottomContainerView.swift in Sources */,

@@ -1,6 +1,7 @@
 import UIKit
 import AVFoundation
 import PhotosUI
+import CoreMotion
 
 protocol CameraViewDelegate: class {
 
@@ -15,6 +16,7 @@ class CameraView: UIViewController {
     
     let camera = Camera()
     var configuration = Configuration()
+    var coreMotion: CMMotionManager!
     
     weak var delegate: CameraViewDelegate?
     var previewLayer: AVCaptureVideoPreviewLayer?
@@ -25,6 +27,8 @@ class CameraView: UIViewController {
     private let maximumZoomFactor: CGFloat = 3.0
     private var currentZoomFactor: CGFloat = 1.0
     private var previousZoomFactor: CGFloat = 1.0
+    
+    var currentOrientation: UIInterfaceOrientation = .portrait
     
     // MARKL - UI Elements
 
@@ -126,10 +130,33 @@ class CameraView: UIViewController {
         
         camera.delegate = self
         camera.setup(self.startOnFrontCamera)
+        
+        setupMotion()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
+    }
+    
+    deinit {
+        coreMotion.stopAccelerometerUpdates()
+    }
+    
+    func setupMotion() {
+        coreMotion = CMMotionManager()
+        coreMotion.accelerometerUpdateInterval = 0.2
+
+        //  Using main queue is not recommended. So create new operation queue and pass it to startAccelerometerUpdatesToQueue.
+        //  Dispatch U/I code to main thread using dispach_async in the handler.
+        coreMotion.startAccelerometerUpdates( to: OperationQueue() ) { data, error in
+            if let data = data {
+                DispatchQueue.main.async {
+                    self.currentOrientation = abs( data.acceleration.y ) < abs( data.acceleration.x )
+                                               ?   data.acceleration.x > 0 ? .landscapeRight : .landscapeLeft
+                                               :   data.acceleration.y > 0 ? .portraitUpsideDown : .portrait
+                }
+            }
+        }
     }
     
     func setupPreviewLayer() {
@@ -198,7 +225,7 @@ class CameraView: UIViewController {
             })
         })
         
-        camera.takePhoto(previewLayer) {
+        camera.takePhoto(previewLayer, orientation: self.currentOrientation) {
             completion()
             self.delegate?.imageToLibrary()
         }

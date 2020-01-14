@@ -15,6 +15,12 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var imageView: UIImageView!
     
+    override var shouldAutorotate: Bool {
+        return false
+    }
+    
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         

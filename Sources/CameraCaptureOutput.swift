@@ -19,6 +19,7 @@ class CameraCaptureOutput: NSObject {
     let output = AVCapturePhotoOutput()
     var takePhotoCompletion: TakePhotoHandler? = nil
     var flashMode: AVCaptureDevice.FlashMode? = nil
+    var orientation: UIInterfaceOrientation?
     
     var settings: AVCapturePhotoSettings {
         let settings = AVCapturePhotoSettings()
@@ -38,8 +39,9 @@ class CameraCaptureOutput: NSObject {
     
     // MARK: - Methods
     
-    func takePhoto(previewLayer: AVCaptureVideoPreviewLayer, completion: TakePhotoHandler? = nil) {
+    func takePhoto(previewLayer: AVCaptureVideoPreviewLayer, orientation: UIInterfaceOrientation, completion: TakePhotoHandler? = nil) {
         takePhotoCompletion = completion
+        self.orientation = orientation
         
         guard let videoPreviewLayerOrientation = previewLayer.connection?.videoOrientation else { return }
         guard let photoOutputConnection = output.connection(with: .video) else { return }
@@ -53,7 +55,7 @@ extension CameraCaptureOutput: AVCapturePhotoCaptureDelegate {
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         guard let imageData = photo.fileDataRepresentation() else { return }
         guard let image = UIImage(data: imageData) else { return }
-        let transformedimage = image.transformedImage(deviceOrientation: UIDevice.current.orientation)
+        let transformedimage = image.transformedImage(interfaceOrientation: self.orientation ?? UIDevice.current.orientation.interfaceOrientation)
         takePhotoCompletion?(transformedimage)
     }
 }
