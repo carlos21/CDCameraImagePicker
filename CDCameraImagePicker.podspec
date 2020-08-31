@@ -10,5 +10,6 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = "11.0"
   s.source       = { :git => "https://github.com/carlos21/CDCameraImagePicker.git", :tag => s.version.to_s }
   s.source_files  = "Sources/**/*.swift"
+  s.resources  = "Sources/images/*"
   s.frameworks  = "Foundation"
 end
