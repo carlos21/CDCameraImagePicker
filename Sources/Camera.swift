@@ -168,7 +168,9 @@ class Camera {
     }
     
     func flash(_ mode: AVCaptureDevice.FlashMode) {
+        #if !targetEnvironment(simulator)
         guard cameraOutput.output.supportedFlashModes.contains(mode) else { return }
+        #endif
         queue.async { [weak self] in
             guard let self = self else { return }
             self.lock {
