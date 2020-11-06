@@ -19,7 +19,7 @@
 		35434A95232805CC000AB511 /* video@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 35434A7A232805CB000AB511 /* video@3x.png */; };
 		35434A96232805CC000AB511 /* cameraIcon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 35434A7B232805CB000AB511 /* cameraIcon@3x.png */; };
 		35434A97232805CC000AB511 /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35434A7C232805CB000AB511 /* Configuration.swift */; };
-		35434A99232805CC000AB511 /* ConstraintsSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35434A80232805CB000AB511 /* ConstraintsSetup.swift */; };
+		35434A99232805CC000AB511 /* CDCameraImagePickerController+ConstraintsSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35434A80232805CB000AB511 /* CDCameraImagePickerController+ConstraintsSetup.swift */; };
 		35434A9A232805CC000AB511 /* AssetManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35434A81232805CB000AB511 /* AssetManager.swift */; };
 		35434A9C232805CC000AB511 /* BottomContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35434A84232805CB000AB511 /* BottomContainerView.swift */; };
 		35434A9D232805CC000AB511 /* ImageStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35434A85232805CB000AB511 /* ImageStack.swift */; };
@@ -91,7 +91,7 @@
 		35434A7A232805CB000AB511 /* video@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "video@3x.png"; sourceTree = "<group>"; };
 		35434A7B232805CB000AB511 /* cameraIcon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cameraIcon@3x.png"; sourceTree = "<group>"; };
 		35434A7C232805CB000AB511 /* Configuration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Configuration.swift; sourceTree = "<group>"; };
-		35434A80232805CB000AB511 /* ConstraintsSetup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintsSetup.swift; sourceTree = "<group>"; };
+		35434A80232805CB000AB511 /* CDCameraImagePickerController+ConstraintsSetup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CDCameraImagePickerController+ConstraintsSetup.swift"; sourceTree = "<group>"; };
 		35434A81232805CB000AB511 /* AssetManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetManager.swift; sourceTree = "<group>"; };
 		35434A84232805CB000AB511 /* BottomContainerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BottomContainerView.swift; sourceTree = "<group>"; };
 		35434A85232805CB000AB511 /* ImageStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageStack.swift; sourceTree = "<group>"; };
@@ -237,7 +237,7 @@
 				35434A6B232805CB000AB511 /* ImageGallery */,
 				35434A74232805CB000AB511 /* images */,
 				35434A81232805CB000AB511 /* AssetManager.swift */,
-				35434A80232805CB000AB511 /* ConstraintsSetup.swift */,
+				35434A80232805CB000AB511 /* CDCameraImagePickerController+ConstraintsSetup.swift */,
 				35434A7C232805CB000AB511 /* Configuration.swift */,
 				35434AAC23282C67000AB511 /* Helper.swift */,
 				35434AAA23282BF3000AB511 /* Camera.swift */,
@@ -451,7 +451,7 @@
 				35434AAF23282C7E000AB511 /* TopView.swift in Sources */,
 				35434AB1232842F8000AB511 /* CameraCaptureOutput.swift in Sources */,
 				35434AAD23282C67000AB511 /* Helper.swift in Sources */,
-				35434A99232805CC000AB511 /* ConstraintsSetup.swift in Sources */,
+				35434A99232805CC000AB511 /* CDCameraImagePickerController+ConstraintsSetup.swift in Sources */,
 				35434A8B232805CB000AB511 /* ImageGalleryViewDataSource.swift in Sources */,
 				35434A8D232805CB000AB511 /* ImageGalleryLayout.swift in Sources */,
 				35434A9A232805CC000AB511 /* AssetManager.swift in Sources */,

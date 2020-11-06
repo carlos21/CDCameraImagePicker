@@ -34,10 +34,11 @@ class ViewController: UIViewController {
         config.doneButtonTitle = "Finish"
         config.noImagesTitle = "Sorry! There are no images here!"
         config.allowVideoSelection = false
-        config.allowMultiplePhotoSelection = false
+        config.allowMultiplePhotoSelection = true
         
         let imagePicker = CDCameraImagePickerController(configuration: config)
         imagePicker.delegate = self
+        imagePicker.modalPresentationStyle = .fullScreen
         present(imagePicker, animated: true, completion: nil)
     }
 }

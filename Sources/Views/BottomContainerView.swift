@@ -87,6 +87,7 @@ open class BottomContainerView: UIView {
     
     @objc func doneButtonDidPress(_ button: UIButton) {
         if button.currentTitle == configuration.cancelButtonTitle {
+            
             delegate?.cancelButtonDidPress()
         } else {
             delegate?.doneButtonDidPress()

@@ -13,13 +13,6 @@ private func < <T: Comparable>(lhs: T?, rhs: T?) -> Bool {
     }
 }
 
-protocol ImageGalleryPanGestureDelegate: class {
-    
-    func panGestureDidStart()
-    func panGestureDidChange(_ translation: CGPoint)
-    func panGestureDidEnd(_ translation: CGPoint, velocity: CGPoint)
-}
-
 open class ImageGalleryViewDataSource: UIView {
     
     var configuration = Configuration()
@@ -27,11 +20,12 @@ open class ImageGalleryViewDataSource: UIView {
     lazy open var collectionView: UICollectionView = { [unowned self] in
         let collectionView = UICollectionView(frame: CGRect.zero,
                                               collectionViewLayout: self.collectionViewLayout)
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
+//        collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = self.configuration.mainColor
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.dataSource = self
         collectionView.delegate = self
+        collectionView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         return collectionView
     }()
     
@@ -42,20 +36,6 @@ open class ImageGalleryViewDataSource: UIView {
         layout.minimumLineSpacing = 2
         layout.sectionInset = UIEdgeInsets.zero
         return layout
-    }()
-    
-    lazy var topSeparator: UIView = { [unowned self] in
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.addGestureRecognizer(self.panGestureRecognizer)
-        view.backgroundColor = self.configuration.gallerySeparatorColor
-        return view
-    }()
-    
-    lazy var panGestureRecognizer: UIPanGestureRecognizer = { [unowned self] in
-        let gesture = UIPanGestureRecognizer()
-        gesture.addTarget(self, action: #selector(handlePanGestureRecognizer(_:)))
-        return gesture
     }()
     
     open lazy var noImagesLabel: UILabel = { [unowned self] in
@@ -72,7 +52,6 @@ open class ImageGalleryViewDataSource: UIView {
     open lazy var selectedStack = ImageStack()
     lazy var assets = [PHAsset]()
     
-    weak var delegate: ImageGalleryPanGestureDelegate?
     var collectionSize: CGSize?
     var shouldTransform = false
     var imagesBeforeLoading = 0
@@ -104,8 +83,20 @@ open class ImageGalleryViewDataSource: UIView {
         collectionView.register(ImageGalleryViewCell.self,
                                 forCellWithReuseIdentifier: CollectionView.reusableIdentifier)
         
-        [collectionView, topSeparator].forEach { addSubview($0) }
-        topSeparator.addSubview(configuration.indicatorView)
+        [collectionView].forEach { addSubview($0) }
+        
+        let constraints = [
+            topAnchor.constraint(equalTo: collectionView.topAnchor),
+            leadingAnchor.constraint(equalTo: collectionView.leadingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: trailingAnchor)
+        ]
+        NSLayoutConstraint.activate(constraints)
+
+        collectionView.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
+        collectionView.leftAnchor.constraint(equalTo: self.leftAnchor).isActive = true
+        collectionView.rightAnchor.constraint(equalTo: self.rightAnchor).isActive = true
+        collectionView.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
         
         imagesBeforeLoading = 0
         fetchPhotos()
@@ -121,12 +112,12 @@ open class ImageGalleryViewDataSource: UIView {
     func updateFrames() {
         let totalWidth = UIScreen.main.bounds.width
         frame.size.width = totalWidth
-        let collectionFrame = frame.height == Dimensions.galleryBarHeight ? 100 + Dimensions.galleryBarHeight : frame.height
-        topSeparator.frame = CGRect(x: 0, y: 0, width: totalWidth, height: Dimensions.galleryBarHeight)
-        topSeparator.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin, .flexibleWidth]
-        configuration.indicatorView.frame = CGRect(x: (totalWidth - configuration.indicatorWidth) / 2, y: (topSeparator.frame.height - configuration.indicatorHeight) / 2,
-                                                   width: configuration.indicatorWidth, height: configuration.indicatorHeight)
-        collectionView.frame = CGRect(x: 0, y: topSeparator.frame.height, width: totalWidth, height: collectionFrame - topSeparator.frame.height)
+//        let collectionFrame = frame.height == Dimensions.galleryBarHeight ? 100 + Dimensions.galleryBarHeight : frame.height
+//        topSeparator.frame = CGRect(x: 0, y: 0, width: totalWidth, height: Dimensions.galleryBarHeight)
+//        topSeparator.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin, .flexibleWidth]
+//        configuration.indicatorView.frame = CGRect(x: (totalWidth - configuration.indicatorWidth) / 2, y: (topSeparator.frame.height - configuration.indicatorHeight) / 2,
+//                                                   width: configuration.indicatorWidth, height: configuration.indicatorHeight)
+        
         collectionSize = CGSize(width: collectionView.frame.height, height: collectionView.frame.height)
         noImagesLabel.center = CGPoint(x: bounds.width / 2, y: (bounds.height + Dimensions.galleryBarHeight) / 2)
         
@@ -153,41 +144,13 @@ open class ImageGalleryViewDataSource: UIView {
         
         guard PHPhotoLibrary.authorizationStatus() == .authorized else { return }
         
-        DispatchQueue.main.async {
-            // TODO
-//            SVProgressHUD.show()
-        }
-        
         AssetManager.fetch(withConfiguration: configuration) { assets in
-            self.assets.removeAll()
-            self.assets.append(contentsOf: assets)
-            self.collectionView.reloadData()
-            
             DispatchQueue.main.async {
-                // TODO
-//                SVProgressHUD.dismiss()
+                self.assets.removeAll()
+                self.assets.append(contentsOf: assets)
+                self.collectionView.reloadData()
+                completion?()
             }
-            
-            completion?()
-        }
-    }
-    
-    // MARK: - Pan gesture recognizer
-    
-    @objc func handlePanGestureRecognizer(_ gesture: UIPanGestureRecognizer) {
-        guard let superview = superview else { return }
-        
-        let translation = gesture.translation(in: superview)
-        let velocity = gesture.velocity(in: superview)
-        
-        switch gesture.state {
-        case .began:
-            delegate?.panGestureDidStart()
-        case .changed:
-            delegate?.panGestureDidChange(translation)
-        case .ended:
-            delegate?.panGestureDidEnd(translation, velocity: velocity)
-        default: break
         }
     }
     

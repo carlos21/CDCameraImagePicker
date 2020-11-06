@@ -45,7 +45,7 @@ open class CDCameraImagePickerController: UIViewController {
     
     open lazy var galleryView: ImageGalleryViewDataSource = { [unowned self] in
         let galleryView = ImageGalleryViewDataSource(configuration: self.configuration)
-        galleryView.delegate = self
+        galleryView.translatesAutoresizingMaskIntoConstraints = false
         galleryView.selectedStack = self.stack
         galleryView.collectionView.layer.anchorPoint = CGPoint(x: 0, y: 0)
         galleryView.imageLimit = self.imageLimit
@@ -73,10 +73,26 @@ open class CDCameraImagePickerController: UIViewController {
         return controller
     }()
     
-    lazy var panGestureRecognizer: UIPanGestureRecognizer = { [unowned self] in
-        let gesture = UIPanGestureRecognizer()
-        gesture.addTarget(self, action: #selector(panGestureRecognizerHandler(_:)))
-        return gesture
+    lazy var showMorePhotos: UIButton = {
+        let button = UIButton(type: .system)
+        button.isHidden = true
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.contentEdgeInsets = UIEdgeInsets(top: 5, left: 8, bottom: 5, right: 8)
+        button.setTitle("Select More Photos", for: .normal)
+        button.setTitleColor(.black, for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 11, weight: .bold)
+        button.layer.cornerRadius = 5
+        button.backgroundColor = UIColor.white
+        button.clipsToBounds = true
+        button.layer.masksToBounds = false
+        button.layer.borderWidth = 1
+        button.layer.borderColor = UIColor.darkGray.cgColor
+        button.layer.shadowColor = UIColor.black.cgColor
+        button.layer.shadowOpacity = 0.8;
+        button.layer.shadowRadius = 4;
+        button.layer.shadowOffset = CGSize(width: 5, height: 5)
+        button.addTarget(self, action: #selector(showMorePhotosPressed), for: .touchUpInside)
+        return button
     }()
     
     lazy var volumeView: MPVolumeView = {
@@ -107,7 +123,7 @@ open class CDCameraImagePickerController: UIViewController {
     open override func viewDidLoad() {
         super.viewDidLoad()
         
-        for subview in [cameraController.view, galleryView, bottomContainer, topView] {
+        for subview in [cameraController.view, galleryView, bottomContainer, topView, showMorePhotos] {
             view.addSubview(subview!)
             subview?.translatesAutoresizingMaskIntoConstraints = false
         }
@@ -117,13 +133,15 @@ open class CDCameraImagePickerController: UIViewController {
         view.backgroundColor = UIColor.white
         view.backgroundColor = configuration.mainColor
         
-        cameraController.view.addGestureRecognizer(panGestureRecognizer)
-        
         subscribe()
         setupConstraints()
         
         if var delegate = UIApplication.shared.delegate as? HandleRotationProtocol {
             delegate.restrictRotation = .portrait
+        }
+        
+        if #available(iOS 14.0, *) {
+            PHPhotoLibrary.shared().register(self)
         }
     }
     
@@ -153,6 +171,7 @@ open class CDCameraImagePickerController: UIViewController {
                                    height: galleryHeight)
         galleryView.updateFrames()
         checkStatus()
+        showSelectMorePhotosButtonIfNeeded()
         
         initialFrame = galleryView.frame
         initialContentOffset = galleryView.collectionView.contentOffset
@@ -208,6 +227,7 @@ open class CDCameraImagePickerController: UIViewController {
         let currentStatus = PHPhotoLibrary.authorizationStatus()
         
         guard currentStatus != .authorized else { return }
+
         if currentStatus == .notDetermined { hideViews() }
         
         PHPhotoLibrary.requestAuthorization { [ weak self] authorizationStatus in
@@ -299,6 +319,12 @@ open class CDCameraImagePickerController: UIViewController {
         galleryView.collectionView.setContentOffset(CGPoint.zero, animated: false)
     }
     
+    @objc func showMorePhotosPressed() {
+        if #available(iOS 14.0, *) {
+            PHPhotoLibrary.shared().presentLimitedLibraryPicker(from: self)
+        }
+    }
+    
     @objc func volumeChanged(_ notification: Notification) {
         guard configuration.allowVolumeButtonsToTakePicture,
             let slider = volumeView.subviews.filter({ $0 is UISlider }).first as? UISlider,
@@ -333,7 +359,7 @@ open class CDCameraImagePickerController: UIViewController {
         galleryView.collectionViewLayout.invalidateLayout()
         UIView.animate(withDuration: 0.3, animations: { [weak self] in
             guard let self = self else { return }
-            self.updateGalleryViewFrames(self.galleryView.topSeparator.frame.height)
+//            self.updateGalleryViewFrames(self.galleryView.topSeparator.frame.height)
             self.galleryView.collectionView.transform = CGAffineTransform.identity
             self.galleryView.collectionView.contentInset = UIEdgeInsets.zero
         }, completion: { _ in
@@ -380,6 +406,17 @@ open class CDCameraImagePickerController: UIViewController {
         topView.rotateCamera.isEnabled = configuration.canRotateCamera
     }
     
+    func showSelectMorePhotosButtonIfNeeded() {
+        if #available(iOS 14.0, *) {
+            let requiredAccessLevel: PHAccessLevel = .readWrite
+            PHPhotoLibrary.requestAuthorization(for: requiredAccessLevel) { [weak self] authorizationStatus in
+                DispatchQueue.main.async {
+                    self?.showMorePhotos.isHidden = authorizationStatus != .limited
+                }
+            }
+        }
+    }
+    
     fileprivate func isBelowImageLimit() -> Bool {
         return (imageLimit == 0 || imageLimit > galleryView.selectedStack.assets.count)
     }
@@ -414,7 +451,10 @@ extension CDCameraImagePickerController: BottomContainerViewDelegate {
     }
     
     func cancelButtonDidPress() {
-        delegate?.imagePickerCancelDidPress(self)
+//        delegate?.imagePickerCancelDidPress(self)
+//        print("currentStatus", currentStatus.rawValue)
+        
+        
     }
     
     func imageStackViewDidPress() {
@@ -503,6 +543,13 @@ extension CDCameraImagePickerController: CameraViewDelegate {
     }
 }
 
+extension CDCameraImagePickerController: PHPhotoLibraryChangeObserver {
+    
+    public func photoLibraryDidChange(_ changeInstance: PHChange) {
+        self.galleryView.fetchPhotos()
+    }
+}
+
 extension CDCameraImagePickerController: TopViewDelegate {
     
     func flashButtonDidPress(_ title: String) {
@@ -511,67 +558,6 @@ extension CDCameraImagePickerController: TopViewDelegate {
     
     func rotateDeviceDidPress() {
         cameraController.rotateCamera()
-    }
-}
-
-extension CDCameraImagePickerController: ImageGalleryPanGestureDelegate {
-    
-    func panGestureDidStart() {
-        guard let collectionSize = galleryView.collectionSize else { return }
-        
-        initialFrame = galleryView.frame
-        initialContentOffset = galleryView.collectionView.contentOffset
-        if let contentOffset = initialContentOffset { numberOfCells = Int(contentOffset.x / collectionSize.width) }
-    }
-    
-    @objc func panGestureRecognizerHandler(_ gesture: UIPanGestureRecognizer) {
-        let translation = gesture.translation(in: view)
-        let velocity = gesture.velocity(in: view)
-        
-        if gesture.location(in: view).y > galleryView.frame.origin.y - 25 {
-            gesture.state == .began ? panGestureDidStart() : panGestureDidChange(translation)
-        }
-        
-        if gesture.state == .ended {
-            panGestureDidEnd(translation, velocity: velocity)
-        }
-    }
-    
-    func panGestureDidChange(_ translation: CGPoint) {
-        guard let initialFrame = initialFrame else { return }
-        
-        let galleryHeight = initialFrame.height - translation.y
-        
-        if galleryHeight >= GestureConstants.maximumHeight { return }
-        
-        if galleryHeight <= ImageGalleryViewDataSource.Dimensions.galleryBarHeight {
-            updateGalleryViewFrames(ImageGalleryViewDataSource.Dimensions.galleryBarHeight)
-        } else if galleryHeight >= GestureConstants.minimumHeight {
-            let scale = (galleryHeight - ImageGalleryViewDataSource.Dimensions.galleryBarHeight) / (GestureConstants.minimumHeight - ImageGalleryViewDataSource.Dimensions.galleryBarHeight)
-            galleryView.collectionView.transform = CGAffineTransform(scaleX: scale, y: scale)
-            galleryView.frame.origin.y = initialFrame.origin.y + translation.y
-            galleryView.frame.size.height = initialFrame.height - translation.y
-            
-            let value = view.frame.width * (scale - 1) / scale
-            galleryView.collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: value)
-        } else {
-            galleryView.frame.origin.y = initialFrame.origin.y + translation.y
-            galleryView.frame.size.height = initialFrame.height - translation.y
-        }
-        
-        galleryView.updateNoImagesLabel()
-    }
-    
-    func panGestureDidEnd(_ translation: CGPoint, velocity: CGPoint) {
-        guard let initialFrame = initialFrame else { return }
-        let galleryHeight = initialFrame.height - translation.y
-        if galleryView.frame.height < GestureConstants.minimumHeight && velocity.y < 0 {
-            showGalleryView()
-        } else if velocity.y < -GestureConstants.velocity {
-            expandGalleryView()
-        } else if velocity.y > GestureConstants.velocity || galleryHeight < GestureConstants.minimumHeight {
-            collapseGalleryView(nil)
-        }
     }
 }
 
