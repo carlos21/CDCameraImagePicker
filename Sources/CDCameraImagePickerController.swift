@@ -184,10 +184,6 @@ open class CDCameraImagePickerController: UIViewController {
         updateOrientation()
     }
     
-    deinit {
-        PHPhotoLibrary.shared().unregisterChangeObserver(self)
-    }
-    
 //    var videoOrientation: AVCaptureVideoOrientation {
 //        switch UIDevice.current.orientation {
 //        case .landscapeLeft:
@@ -283,6 +279,7 @@ open class CDCameraImagePickerController: UIViewController {
         }
         
         NotificationCenter.default.removeObserver(self)
+        PHPhotoLibrary.shared().unregisterChangeObserver(self)
     }
     
     func subscribe() {
