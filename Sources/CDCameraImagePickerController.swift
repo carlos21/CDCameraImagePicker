@@ -452,10 +452,7 @@ extension CDCameraImagePickerController: BottomContainerViewDelegate {
     }
     
     func cancelButtonDidPress() {
-//        delegate?.imagePickerCancelDidPress(self)
-//        print("currentStatus", currentStatus.rawValue)
-        
-        
+        delegate?.imagePickerCancelDidPress(self)
     }
     
     func imageStackViewDidPress() {
