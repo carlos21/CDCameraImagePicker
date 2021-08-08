@@ -2,7 +2,7 @@ import Foundation
 import AVFoundation
 import PhotosUI
 
-protocol CameraDelegate: class {
+protocol CameraDelegate: AnyObject {
     
     func cameraManNotAvailable(_ cameraMan: Camera)
     func cameraManDidStart(_ cameraMan: Camera)

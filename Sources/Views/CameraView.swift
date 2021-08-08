@@ -3,7 +3,7 @@ import AVFoundation
 import PhotosUI
 import CoreMotion
 
-protocol CameraViewDelegate: class {
+protocol CameraViewDelegate: AnyObject {
 
     func setFlashButtonHidden(_ hidden: Bool)
     func imageToLibrary()
@@ -15,7 +15,7 @@ class CameraView: UIViewController {
     // MARKL - Properties
     
     let camera = Camera()
-    var configuration = Configuration()
+    var configuration = Config()
     var coreMotion: CMMotionManager!
     
     weak var delegate: CameraViewDelegate?
@@ -100,7 +100,7 @@ class CameraView: UIViewController {
         return gesture
     }()
     
-    public init(configuration: Configuration? = nil) {
+    public init(configuration: Config? = nil) {
         if let configuration = configuration {
             self.configuration = configuration
         }

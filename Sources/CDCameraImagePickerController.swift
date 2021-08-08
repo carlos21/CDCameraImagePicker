@@ -12,7 +12,7 @@ open class CDCameraImagePickerController: UIViewController {
     
     // MARK: - Properties
     
-    let configuration: Configuration
+    let config: Config
     var volume = AVAudioSession.sharedInstance().outputVolume
     
     open weak var delegate: CDCameraImagePickerControllerDelegate?
@@ -44,7 +44,7 @@ open class CDCameraImagePickerController: UIViewController {
     // MARK: - UI Elements
     
     open lazy var galleryView: ImageGalleryViewDataSource = { [unowned self] in
-        let galleryView = ImageGalleryViewDataSource(configuration: self.configuration)
+        let galleryView = ImageGalleryViewDataSource(configuration: self.config)
         galleryView.translatesAutoresizingMaskIntoConstraints = false
         galleryView.selectedStack = self.stack
         galleryView.collectionView.layer.anchorPoint = CGPoint(x: 0, y: 0)
@@ -53,21 +53,21 @@ open class CDCameraImagePickerController: UIViewController {
     }()
     
     open lazy var bottomContainer: BottomContainerView = { [unowned self] in
-        let view = BottomContainerView(configuration: self.configuration)
-        view.backgroundColor = self.configuration.bottomContainerColor
+        let view = BottomContainerView(config: self.config)
+        view.backgroundColor = self.config.bottomContainerColor
         view.delegate = self
         return view
     }()
     
     open lazy var topView: TopView = { [unowned self] in
-        let view = TopView(configuration: self.configuration)
+        let view = TopView(configuration: self.config)
         view.backgroundColor = UIColor.clear
         view.delegate = self
         return view
     }()
     
     lazy var cameraController: CameraView = { [unowned self] in
-        let controller = CameraView(configuration: self.configuration)
+        let controller = CameraView(configuration: self.config)
         controller.delegate = self
         controller.startOnFrontCamera = self.startOnFrontCamera
         return controller
@@ -103,18 +103,18 @@ open class CDCameraImagePickerController: UIViewController {
     
     // MARK: - Initialization
     
-    @objc public required init(configuration: Configuration = Configuration()) {
-        self.configuration = configuration
+    @objc public required init(config: Config = Config()) {
+        self.config = config
         super.init(nibName: nil, bundle: nil)
     }
     
     public override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        self.configuration = Configuration()
+        self.config = Config()
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
     
     public required init?(coder aDecoder: NSCoder) {
-        self.configuration = Configuration()
+        self.config = Config()
         super.init(coder: aDecoder)
     }
     
@@ -131,7 +131,7 @@ open class CDCameraImagePickerController: UIViewController {
         view.addSubview(volumeView)
         view.sendSubviewToBack(volumeView)
         view.backgroundColor = UIColor.white
-        view.backgroundColor = configuration.mainColor
+        view.backgroundColor = config.mainColor
         
         subscribe()
         setupConstraints()
@@ -148,7 +148,7 @@ open class CDCameraImagePickerController: UIViewController {
     open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        if configuration.managesAudioSession {
+        if config.managesAudioSession {
             _ = try? AVAudioSession.sharedInstance().setActive(true)
         }
         
@@ -243,17 +243,17 @@ open class CDCameraImagePickerController: UIViewController {
     }
     
     func presentAskPermissionAlert() {
-        let alertController = UIAlertController(title: configuration.requestPermissionTitle,
-                                                message: configuration.requestPermissionMessage,
+        let alertController = UIAlertController(title: config.requestPermissionTitle,
+                                                message: config.requestPermissionMessage,
                                                 preferredStyle: .alert)
         
-        let alertAction = UIAlertAction(title: configuration.OKButtonTitle, style: .default) { _ in
+        let alertAction = UIAlertAction(title: config.OKButtonTitle, style: .default) { _ in
             if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
                 UIApplication.shared.open(settingsURL, options: [:], completionHandler: nil)
             }
         }
         
-        let cancelAction = UIAlertAction(title: configuration.cancelButtonTitle, style: .cancel) { _ in
+        let cancelAction = UIAlertAction(title: config.cancelButtonTitle, style: .cancel) { _ in
             self.dismiss(animated: true, completion: nil)
         }
         
@@ -274,7 +274,7 @@ open class CDCameraImagePickerController: UIViewController {
     // MARK: - Notifications
     
     deinit {
-        if configuration.managesAudioSession {
+        if config.managesAudioSession {
             _ = try? AVAudioSession.sharedInstance().setActive(false)
         }
         
@@ -327,7 +327,7 @@ open class CDCameraImagePickerController: UIViewController {
     }
     
     @objc func volumeChanged(_ notification: Notification) {
-        guard configuration.allowVolumeButtonsToTakePicture,
+        guard config.allowVolumeButtonsToTakePicture,
             let slider = volumeView.subviews.filter({ $0 is UISlider }).first as? UISlider,
             let userInfo = (notification as NSNotification).userInfo,
             let changeReason = userInfo["AVSystemController_AudioVolumeChangeReasonNotificationParameter"] as? String,
@@ -340,7 +340,7 @@ open class CDCameraImagePickerController: UIViewController {
     @objc func adjustButtonTitle(_ notification: Notification) {
         guard let sender = notification.object as? ImageStack else { return }
         
-        let title = !sender.assets.isEmpty ? configuration.doneButtonTitle : configuration.cancelButtonTitle
+        let title = !sender.assets.isEmpty ? config.doneButtonTitle : config.cancelButtonTitle
         bottomContainer.doneButton.setTitle(title, for: UIControl.State())
     }
     
@@ -404,7 +404,7 @@ open class CDCameraImagePickerController: UIViewController {
         bottomContainer.pickerButton.isEnabled = enabled
         bottomContainer.tapGestureRecognizer.isEnabled = enabled
         topView.flashButton.isEnabled = enabled
-        topView.rotateCamera.isEnabled = configuration.canRotateCamera
+        topView.rotateCamera.isEnabled = config.canRotateCamera
     }
     
     func showSelectMorePhotosButtonIfNeeded() {
@@ -433,7 +433,7 @@ open class CDCameraImagePickerController: UIViewController {
             self.cameraController.takePicture { self.isTakingPicture = false }
         }
         
-        if configuration.collapseCollectionViewWhileShot {
+        if config.collapseCollectionViewWhileShot {
             collapseGalleryView(action)
         } else {
             action()
@@ -463,7 +463,7 @@ extension CDCameraImagePickerController: BottomContainerViewDelegate {
 extension CDCameraImagePickerController: CameraViewDelegate {
     
     func setFlashButtonHidden(_ hidden: Bool) {
-        if configuration.flashButtonAlwaysHidden {
+        if config.flashButtonAlwaysHidden {
             topView.flashButton.isHidden = hidden
         }
     }
@@ -474,7 +474,7 @@ extension CDCameraImagePickerController: CameraViewDelegate {
         galleryView.fetchPhotos { [weak self] in
             guard let self = self else { return }
             guard let asset = self.galleryView.assets.first else { return }
-            if self.configuration.allowMultiplePhotoSelection == false {
+            if self.config.allowMultiplePhotoSelection == false {
                 self.stack.assets.removeAll()
             }
             self.stack.pushAsset(asset)

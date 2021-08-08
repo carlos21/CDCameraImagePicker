@@ -15,7 +15,7 @@ private func < <T: Comparable>(lhs: T?, rhs: T?) -> Bool {
 
 open class ImageGalleryViewDataSource: UIView {
     
-    var configuration = Configuration()
+    var configuration = Config()
     
     lazy open var collectionView: UICollectionView = { [unowned self] in
         let collectionView = UICollectionView(frame: CGRect.zero,
@@ -60,7 +60,7 @@ open class ImageGalleryViewDataSource: UIView {
     
     // MARK: - Initializers
     
-    public init(configuration: Configuration? = nil) {
+    public init(configuration: Config? = nil) {
         if let configuration = configuration {
             self.configuration = configuration
         }

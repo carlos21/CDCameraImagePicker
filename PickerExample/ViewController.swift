@@ -19,24 +19,18 @@ class ViewController: UIViewController {
         return false
     }
     
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-//        if var delegate = UIApplication.shared.delegate as? HandleRotationProtocol {
-//            delegate.restrictRotation = .portrait
-//        }
     }
     
     @IBAction func openPressed(_ sender: Any) {
-        let config = Configuration()
+        let config = Config()
         config.doneButtonTitle = "Finish"
         config.noImagesTitle = "Sorry! There are no images here!"
         config.allowVideoSelection = false
         config.allowMultiplePhotoSelection = true
         
-        let imagePicker = CDCameraImagePickerController(configuration: config)
+        let imagePicker = CDCameraImagePickerController(config: config)
         imagePicker.delegate = self
         imagePicker.modalPresentationStyle = .fullScreen
         present(imagePicker, animated: true, completion: nil)

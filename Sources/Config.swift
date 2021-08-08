@@ -1,7 +1,7 @@
 import AVFoundation
 import UIKit
 
-@objc public class Configuration: NSObject {
+@objc public class Config: NSObject {
 
     // MARK: Colors
     
@@ -65,7 +65,7 @@ import UIKit
 }
 
 // MARK: - Orientation
-extension Configuration {
+extension Config {
 
     
 }

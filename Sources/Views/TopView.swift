@@ -1,6 +1,6 @@
 import UIKit
 
-protocol TopViewDelegate: class {
+protocol TopViewDelegate: AnyObject {
     
     func flashButtonDidPress(_ title: String)
     func rotateDeviceDidPress()
@@ -11,7 +11,7 @@ open class TopView: UIView {
     // MARK: - Properties
     
     weak var delegate: TopViewDelegate?
-    var configuration = Configuration()
+    var configuration = Config()
     var currentFlashIndex = 0
     let flashButtonTitles = ["AUTO", "ON", "OFF"]
     
@@ -42,7 +42,7 @@ open class TopView: UIView {
     
     // MARK: - Initializers
     
-    public init(configuration: Configuration? = nil) {
+    public init(configuration: Config? = nil) {
         if let configuration = configuration {
             self.configuration = configuration
         }

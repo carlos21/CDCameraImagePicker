@@ -4,11 +4,11 @@ class ImageGalleryLayout: UICollectionViewFlowLayout {
     
     // MARK: - Properties
     
-    let configuration: Configuration
+    let configuration: Config
     
     // MARK: - Initializers
     
-    init(configuration: Configuration) {
+    init(configuration: Config) {
         self.configuration = configuration
         super.init()
     }

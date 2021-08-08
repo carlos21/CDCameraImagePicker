@@ -1,6 +1,6 @@
 import UIKit
 
-protocol BottomContainerViewDelegate: class {
+protocol BottomContainerViewDelegate: AnyObject {
 
     func pickerButtonDidPress()
     func doneButtonDidPress()
@@ -16,13 +16,13 @@ open class BottomContainerView: UIView {
     
     weak var delegate: BottomContainerViewDelegate?
     var pastCount = 0
-    var configuration = Configuration()
+    var config = Config()
     
     lazy var pickerButton: ButtonPicker = { [unowned self] in
-        let pickerButton = ButtonPicker(configuration: self.configuration)
+        let pickerButton = ButtonPicker(config: self.config)
         pickerButton.setTitleColor(UIColor.white, for: UIControl.State())
         pickerButton.delegate = self
-        pickerButton.numberLabel.isHidden = !self.configuration.showsImageCountLabel
+        pickerButton.numberLabel.isHidden = !self.config.showsImageCountLabel
         return pickerButton
     }()
     
@@ -37,8 +37,8 @@ open class BottomContainerView: UIView {
     
     open lazy var doneButton: UIButton = { [unowned self] in
         let button = UIButton()
-        button.setTitle(self.configuration.cancelButtonTitle, for: UIControl.State())
-        button.titleLabel?.font = self.configuration.doneButton
+        button.setTitle(self.config.cancelButtonTitle, for: UIControl.State())
+        button.titleLabel?.font = self.config.doneButton
         button.addTarget(self, action: #selector(doneButtonDidPress(_:)), for: .touchUpInside)
         return button
     }()
@@ -47,7 +47,7 @@ open class BottomContainerView: UIView {
     
     lazy var topSeparator: UIView = { [unowned self] in
         let view = UIView()
-        view.backgroundColor = self.configuration.backgroundColor
+        view.backgroundColor = self.config.backgroundColor
         return view
     }()
     
@@ -59,9 +59,9 @@ open class BottomContainerView: UIView {
     
     // MARK: Initializers
     
-    public init(configuration: Configuration? = nil) {
-        if let configuration = configuration {
-            self.configuration = configuration
+    public init(config: Config? = nil) {
+        if let config = config {
+            self.config = config
         }
         super.init(frame: .zero)
         configure()
@@ -77,7 +77,7 @@ open class BottomContainerView: UIView {
             $0.translatesAutoresizingMaskIntoConstraints = false
         }
         
-        backgroundColor = configuration.backgroundColor
+        backgroundColor = config.backgroundColor
         stackView.accessibilityLabel = "Image stack"
         stackView.addGestureRecognizer(tapGestureRecognizer)
         setupConstraints()
@@ -86,7 +86,7 @@ open class BottomContainerView: UIView {
     // MARK: - Action methods
     
     @objc func doneButtonDidPress(_ button: UIButton) {
-        if button.currentTitle == configuration.cancelButtonTitle {
+        if button.currentTitle == config.cancelButtonTitle {
             
             delegate?.cancelButtonDidPress()
         } else {

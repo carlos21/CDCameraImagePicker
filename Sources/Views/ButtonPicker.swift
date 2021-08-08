@@ -1,6 +1,6 @@
 import UIKit
 
-protocol ButtonPickerDelegate: class {
+protocol ButtonPickerDelegate: AnyObject {
 
   func buttonDidPress()
 }
@@ -10,20 +10,20 @@ class ButtonPicker: UIButton {
     // MARK: - Properties
 
     weak var delegate: ButtonPickerDelegate?
-    var configuration = Configuration()
+    var config = Config()
     
     lazy var numberLabel: UILabel = { [unowned self] in
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = self.configuration.numberLabelFont
+        label.font = self.config.numberLabelFont
         return label
     }()
     
     // MARK: - Initializers
     
-    public init(configuration: Configuration? = nil) {
-        if let configuration = configuration {
-            self.configuration = configuration
+    public init(config: Config? = nil) {
+        if let config = config {
+            self.config = config
         }
         super.init(frame: .zero)
         configure()

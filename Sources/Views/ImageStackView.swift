@@ -1,7 +1,7 @@
 import UIKit
 import Photos
 
-protocol ImageStackViewDelegate: class {
+protocol ImageStackViewDelegate: AnyObject {
     
     func imageStackViewDidPress()
 }
