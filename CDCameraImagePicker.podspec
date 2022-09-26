@@ -7,7 +7,7 @@ Pod::Spec.new do |s|
   s.license      = { :type => "MIT", :file => "LICENSE" }
   s.author       = { "Carlos Duclos" => "darkzeratul64@gmail.com" }
   s.swift_version    = '5.0'
-  s.ios.deployment_target = "11.0"
+  s.ios.deployment_target = "14.0"
   s.source       = { :git => "https://github.com/carlos21/CDCameraImagePicker.git", :tag => s.version.to_s }
   s.source_files  = "Sources/**/*.swift"
   s.resources  = "Sources/images/*"

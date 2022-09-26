@@ -26,6 +26,7 @@ class ImageGalleryViewCell: UICollectionViewCell {
         let videoBarFrame = CGRect(x: 0, y: frame.height - self.videoInfoBarHeight,
                                    width: frame.width, height: self.videoInfoBarHeight)
         videoInfoView = VideoInfoView(frame: videoBarFrame)
+        videoInfoView.isHidden = true
         super.init(frame: frame)
         
         for view in [imageView, selectedImageView, videoInfoView] as [UIView] {

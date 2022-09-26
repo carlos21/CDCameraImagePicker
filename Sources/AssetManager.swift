@@ -16,39 +16,41 @@ class AssetManager {
         return UIImage(named: name, in: bundle, compatibleWith: traitCollection) ?? UIImage()
     }
     
-    static func fetch(withConfiguration configuration: Config, _ completion: @escaping (_ assets: [PHAsset]) -> Void) {
+    static func fetch(withConfiguration configuration: Config,
+                      _ completion: @escaping (_ fetchResult: PHFetchResult<PHAsset>) -> Void) {
         guard PHPhotoLibrary.authorizationStatus() == .authorized else { return }
         
         DispatchQueue.global(qos: .background).async {
+            let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
+            let options = PHFetchOptions()
+            options.sortDescriptors = [sortDescriptor]
             let fetchResult = configuration.allowVideoSelection
-                ? PHAsset.fetchAssets(with: PHFetchOptions())
-                : PHAsset.fetchAssets(with: .image, options: PHFetchOptions())
-            
-            if fetchResult.count > 0 {
-                var assets = [PHAsset]()
-                fetchResult.enumerateObjects({ object, _, _ in
-                    assets.insert(object, at: 0)
-                })
-                
-                DispatchQueue.main.async {
-                    completion(assets)
-                }
+                ? PHAsset.fetchAssets(with: options)
+                : PHAsset.fetchAssets(with: .image, options: options)
+            DispatchQueue.main.async {
+                completion(fetchResult)
             }
         }
     }
     
-    static func resolveAsset(_ asset: PHAsset, size: CGSize = CGSize(width: 720, height: 1280),
+    static func resolveAsset(_ asset: PHAsset,
+                             size: CGSize = CGSize(width: 720, height: 1280),
+                             isSynchronous: Bool,
                              shouldPreferLowRes: Bool = false, completion: @escaping (_ image: UIImage?) -> Void) {
         let imageManager = PHImageManager.default()
         let requestOptions = PHImageRequestOptions()
         requestOptions.deliveryMode = shouldPreferLowRes ? .fastFormat : .highQualityFormat
         requestOptions.isNetworkAccessAllowed = true
-        imageManager.requestImage(for: asset, targetSize: size, contentMode: .aspectFill, options: requestOptions) { image, info in
+        requestOptions.isSynchronous = isSynchronous
+        imageManager.requestImage(for: asset,
+                                  targetSize: size,
+                                  contentMode: .aspectFill,
+                                  options: requestOptions) { image, info in
             if let info = info, info["PHImageFileUTIKey"] == nil {
-                DispatchQueue.main.async(execute: {
-                    completion(image)
-                })
+                completion(image)
+                return
             }
+            completion(nil)
         }
     }
     

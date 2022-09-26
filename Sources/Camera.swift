@@ -143,28 +143,26 @@ class Camera {
         }
     }
     
-    func takePhoto(_ previewLayer: AVCaptureVideoPreviewLayer, orientation: UIInterfaceOrientation, completion: (() -> Void)? = nil) {
+    func takePhoto(_ previewLayer: AVCaptureVideoPreviewLayer,
+                   orientation: UIInterfaceOrientation,
+                   completion: ((String?) -> Void)? = nil) {
         cameraOutput.takePhoto(previewLayer: previewLayer, orientation: orientation) { [weak self] image in
             guard let image = image else {
-                completion?()
+                completion?(nil)
                 return
             }
             self?.savePhoto(image, completion: completion)
         }
-        
-        // TODO
-        // use video orientation
     }
     
-    func savePhoto(_ image: UIImage, completion: (() -> Void)? = nil) {
-        PHPhotoLibrary.shared().performChanges({
+    func savePhoto(_ image: UIImage, completion: ((String?) -> Void)? = nil) {
+        var localIdentifier: String?
+        try? PHPhotoLibrary.shared().performChangesAndWait {
             let request = PHAssetChangeRequest.creationRequestForAsset(from: image)
             request.creationDate = Date()
-        }, completionHandler: { (_, _) in
-            DispatchQueue.main.async {
-                completion?()
-            }
-        })
+            localIdentifier = request.placeholderForCreatedAsset?.localIdentifier
+        }
+        completion?(localIdentifier)
     }
     
     func flash(_ mode: AVCaptureDevice.FlashMode) {
