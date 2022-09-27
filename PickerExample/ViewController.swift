@@ -39,7 +39,7 @@ class ViewController: UIViewController {
 
 extension ViewController: CDCameraImagePickerControllerDelegate {
     
-    func imagePickerDoneDidPress(_ imagePicker: CDCameraImagePickerController, assets: [PHAsset]) {
+    func imagePickerDoneDidPress(_ imagePicker: CDCameraImagePickerController, photos: [PhotoData]) {
         imagePicker.dismiss(animated: true, completion: nil)
     }
     

@@ -22,7 +22,7 @@ open class BottomContainerView: UIView {
         let pickerButton = ButtonPicker(config: self.config)
         pickerButton.setTitleColor(UIColor.white, for: UIControl.State())
         pickerButton.delegate = self
-        pickerButton.numberLabel.isHidden = !self.config.showsImageCountLabel
+        pickerButton.numberLabel.isHidden = false
         return pickerButton
     }()
     
@@ -87,7 +87,6 @@ open class BottomContainerView: UIView {
     
     @objc func doneButtonDidPress(_ button: UIButton) {
         if button.currentTitle == config.cancelButtonTitle {
-            
             delegate?.cancelButtonDidPress()
         } else {
             delegate?.doneButtonDidPress()

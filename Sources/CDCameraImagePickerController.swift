@@ -4,7 +4,7 @@ import Photos
 
 public protocol CDCameraImagePickerControllerDelegate: NSObjectProtocol {
     
-    func imagePickerDoneDidPress(_ imagePicker: CDCameraImagePickerController, assets: [PHAsset])
+    func imagePickerDoneDidPress(_ imagePicker: CDCameraImagePickerController, photos: [PhotoData])
     func imagePickerCancelDidPress(_ imagePicker: CDCameraImagePickerController)
 }
 
@@ -16,7 +16,7 @@ open class CDCameraImagePickerController: UIViewController {
     var volume = AVAudioSession.sharedInstance().outputVolume
     
     open weak var delegate: CDCameraImagePickerControllerDelegate?
-    open var stack = ImageStack()
+    var stack = ImageStack()
     open var imageLimit = 0
     open var preferredImageSize: CGSize?
     open var startOnFrontCamera = false
@@ -27,7 +27,11 @@ open class CDCameraImagePickerController: UIViewController {
     var numberOfCells: Int?
     public var statusBarHidden: Bool?
     
-    fileprivate var isTakingPicture = false
+    fileprivate var isTakingPicture = false {
+        didSet {
+            bottomContainer.pickerButton.isEnabled = !isTakingPicture
+        }
+    }
     
     open var doneButtonTitle: String? {
         didSet {
@@ -38,35 +42,35 @@ open class CDCameraImagePickerController: UIViewController {
     }
     
     var appOrientation: UIInterfaceOrientation {
-        return UIInterfaceOrientation(rawValue: UIApplication.shared.statusBarOrientation.rawValue)!
+        return UIWindow.interfaceOrientation!
     }
     
     // MARK: - UI Elements
     
-    open lazy var galleryView: ImageGalleryViewDataSource = { [unowned self] in
-        let galleryView = ImageGalleryViewDataSource(configuration: self.config)
+    open lazy var galleryView: ImageGalleryView = {
+        let galleryView = ImageGalleryView(configuration: config)
         galleryView.translatesAutoresizingMaskIntoConstraints = false
-        galleryView.selectedStack = self.stack
+        galleryView.selectedStack = stack
         galleryView.collectionView.layer.anchorPoint = CGPoint(x: 0, y: 0)
-        galleryView.imageLimit = self.imageLimit
+        galleryView.imageLimit = imageLimit
         return galleryView
     }()
     
-    open lazy var bottomContainer: BottomContainerView = { [unowned self] in
-        let view = BottomContainerView(config: self.config)
-        view.backgroundColor = self.config.bottomContainerColor
+    open lazy var bottomContainer: BottomContainerView = {
+        let view = BottomContainerView(config: config)
+        view.backgroundColor = config.bottomContainerColor
         view.delegate = self
         return view
     }()
     
-    open lazy var topView: TopView = { [unowned self] in
+    open lazy var topView: TopView = {
         let view = TopView(configuration: self.config)
         view.backgroundColor = UIColor.clear
         view.delegate = self
         return view
     }()
     
-    lazy var cameraController: CameraView = { [unowned self] in
+    lazy var cameraController: CameraView = {
         let controller = CameraView(configuration: self.config)
         controller.delegate = self
         controller.startOnFrontCamera = self.startOnFrontCamera
@@ -153,13 +157,9 @@ open class CDCameraImagePickerController: UIViewController {
         }
         
         handleRotation(nil)
-    }
-    
-    open override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
         
         let galleryHeight: CGFloat = UIScreen.main.nativeBounds.height == 960
-            ? ImageGalleryViewDataSource.Dimensions.galleryBarHeight : GestureConstants.minimumHeight
+            ? ImageGalleryView.Dimensions.galleryBarHeight : GestureConstants.minimumHeight
         
         galleryView.collectionView.transform = CGAffineTransform.identity
         galleryView.collectionView.contentInset = UIEdgeInsets.zero
@@ -182,41 +182,6 @@ open class CDCameraImagePickerController: UIViewController {
                              argument: bottomContainer);
         
         updateOrientation()
-    }
-    
-//    var videoOrientation: AVCaptureVideoOrientation {
-//        switch UIDevice.current.orientation {
-//        case .landscapeLeft:
-//            return .landscapeRight
-//
-//        case .landscapeRight:
-//            return .landscapeLeft
-//
-//        case .portrait:
-//            return .portrait
-//
-//        case .portraitUpsideDown:
-//            return .portraitUpsideDown
-//
-//        default:
-//            return .portrait
-//        }
-//    }
-    
-//    override open func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-//        coordinator.animate(alongsideTransition: { [weak self] context in
-//            guard let self = self else { return }
-//            self.updateOrientation()
-//            self.cameraController.previewLayer?.frame.size = self.cameraController.containerView.frame.size
-//
-//        }, completion: { context in
-//
-//        })
-//        super.viewWillTransition(to: size, with: coordinator)
-//    }
-    
-    open func resetAssets() {
-        self.stack.resetAssets([])
     }
     
     func updateOrientation() {
@@ -304,11 +269,6 @@ open class CDCameraImagePickerController: UIViewController {
                                                object: nil)
         
         NotificationCenter.default.addObserver(self,
-                                               selector: #selector(volumeChanged(_:)),
-                                               name: NSNotification.Name(rawValue: "AVSystemController_SystemVolumeDidChangeNotification"),
-                                               object: nil)
-        
-        NotificationCenter.default.addObserver(self,
                                                selector: #selector(handleRotation(_:)),
                                                name: UIDevice.orientationDidChangeNotification,
                                                object: nil)
@@ -321,26 +281,13 @@ open class CDCameraImagePickerController: UIViewController {
     }
     
     @objc func showMorePhotosPressed() {
-        if #available(iOS 14.0, *) {
-            PHPhotoLibrary.shared().presentLimitedLibraryPicker(from: self)
-        }
-    }
-    
-    @objc func volumeChanged(_ notification: Notification) {
-        guard config.allowVolumeButtonsToTakePicture,
-            let slider = volumeView.subviews.filter({ $0 is UISlider }).first as? UISlider,
-            let userInfo = (notification as NSNotification).userInfo,
-            let changeReason = userInfo["AVSystemController_AudioVolumeChangeReasonNotificationParameter"] as? String,
-            changeReason == "ExplicitVolumeChange" else { return }
-        
-        slider.setValue(volume, animated: false)
-        takePicture()
+        PHPhotoLibrary.shared().presentLimitedLibraryPicker(from: self)
     }
     
     @objc func adjustButtonTitle(_ notification: Notification) {
         guard let sender = notification.object as? ImageStack else { return }
         
-        let title = !sender.assets.isEmpty ? config.doneButtonTitle : config.cancelButtonTitle
+        let title = !sender.photos.isEmpty ? config.doneButtonTitle : config.cancelButtonTitle
         bottomContainer.doneButton.setTitle(title, for: UIControl.State())
     }
     
@@ -354,18 +301,6 @@ open class CDCameraImagePickerController: UIViewController {
     
     open override var prefersStatusBarHidden: Bool {
         return statusBarHidden ?? UIApplication.shared.isStatusBarHidden
-    }
-    
-    open func collapseGalleryView(_ completion: (() -> Void)?) {
-        galleryView.collectionViewLayout.invalidateLayout()
-        UIView.animate(withDuration: 0.3, animations: { [weak self] in
-            guard let self = self else { return }
-//            self.updateGalleryViewFrames(self.galleryView.topSeparator.frame.height)
-            self.galleryView.collectionView.transform = CGAffineTransform.identity
-            self.galleryView.collectionView.contentInset = UIEdgeInsets.zero
-        }, completion: { _ in
-            completion?()
-        })
     }
     
     open func showGalleryView() {
@@ -385,8 +320,8 @@ open class CDCameraImagePickerController: UIViewController {
             guard let self = self else { return }
             self.updateGalleryViewFrames(GestureConstants.maximumHeight)
             
-            let scale = (GestureConstants.maximumHeight - ImageGalleryViewDataSource.Dimensions.galleryBarHeight)
-                / (GestureConstants.minimumHeight - ImageGalleryViewDataSource.Dimensions.galleryBarHeight)
+            let scale = (GestureConstants.maximumHeight - ImageGalleryView.Dimensions.galleryBarHeight)
+                / (GestureConstants.minimumHeight - ImageGalleryView.Dimensions.galleryBarHeight)
             self.galleryView.collectionView.transform = CGAffineTransform(scaleX: scale, y: scale)
             
             let value = self.view.frame.width * (scale - 1) / scale
@@ -408,35 +343,23 @@ open class CDCameraImagePickerController: UIViewController {
     }
     
     func showSelectMorePhotosButtonIfNeeded() {
-        if #available(iOS 14.0, *) {
-            let requiredAccessLevel: PHAccessLevel = .readWrite
-            PHPhotoLibrary.requestAuthorization(for: requiredAccessLevel) { [weak self] authorizationStatus in
-                DispatchQueue.main.async {
-                    self?.showMorePhotos.isHidden = authorizationStatus != .limited
-                }
+        let requiredAccessLevel: PHAccessLevel = .readWrite
+        PHPhotoLibrary.requestAuthorization(for: requiredAccessLevel) { [weak self] authorizationStatus in
+            DispatchQueue.main.async {
+                self?.showMorePhotos.isHidden = authorizationStatus != .limited
             }
         }
     }
     
-    fileprivate func isBelowImageLimit() -> Bool {
-        return (imageLimit == 0 || imageLimit > galleryView.selectedStack.assets.count)
-    }
-    
     fileprivate func takePicture() {
-        guard isBelowImageLimit() && !isTakingPicture else { return }
+        guard !isTakingPicture else { return }
         isTakingPicture = true
-        bottomContainer.pickerButton.isEnabled = false
         bottomContainer.stackView.startLoader()
-        
-        let action: () -> Void = { [weak self] in
-            guard let self = self else { return }
-            self.cameraController.takePicture { self.isTakingPicture = false }
-        }
-        
-        if config.collapseCollectionViewWhileShot {
-            collapseGalleryView(action)
-        } else {
-            action()
+        cameraController.takePicture { [weak self] localIdentifier in
+            DispatchQueue.main.async {
+                self?.isTakingPicture = false
+                self?.stack.lastLocalIdentifier = localIdentifier
+            }
         }
     }
 }
@@ -448,7 +371,7 @@ extension CDCameraImagePickerController: BottomContainerViewDelegate {
     }
     
     func doneButtonDidPress() {
-        delegate?.imagePickerDoneDidPress(self, assets: stack.assets)
+        delegate?.imagePickerDoneDidPress(self, photos: stack.photos)
     }
     
     func cancelButtonDidPress() {
@@ -469,27 +392,7 @@ extension CDCameraImagePickerController: CameraViewDelegate {
     }
     
     func imageToLibrary() {
-        guard let collectionSize = galleryView.collectionSize else { return }
-        
-        galleryView.fetchPhotos { [weak self] in
-            guard let self = self else { return }
-            guard let asset = self.galleryView.assets.first else { return }
-            if self.config.allowMultiplePhotoSelection == false {
-                self.stack.assets.removeAll()
-            }
-            self.stack.pushAsset(asset)
-        }
-        
-        galleryView.shouldTransform = true
         bottomContainer.pickerButton.isEnabled = true
-        
-        UIView.animate(withDuration: 0.3, animations: { [weak self] in
-            guard let self = self else { return }
-            self.galleryView.collectionView.transform = CGAffineTransform(translationX: collectionSize.width, y: 0)
-        }, completion: { [weak self] _ in
-            guard let self = self else { return }
-            self.galleryView.collectionView.transform = CGAffineTransform.identity
-        })
     }
     
     func cameraNotAvailable() {
@@ -544,7 +447,13 @@ extension CDCameraImagePickerController: CameraViewDelegate {
 extension CDCameraImagePickerController: PHPhotoLibraryChangeObserver {
     
     public func photoLibraryDidChange(_ changeInstance: PHChange) {
-        self.galleryView.fetchPhotos()
+        guard let fetchResult = galleryView.fetchResult,
+              let changesResult = changeInstance.changeDetails(for: fetchResult) else {
+            return
+        }
+        DispatchQueue.main.async {
+            self.galleryView.fetchPhotos(fetchResult: changesResult.fetchResultAfterChanges)
+        }
     }
 }
 

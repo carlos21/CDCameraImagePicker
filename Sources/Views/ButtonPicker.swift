@@ -16,6 +16,7 @@ class ButtonPicker: UIButton {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = self.config.numberLabelFont
+        label.textColor = UIColor.black
         return label
     }()
     
@@ -81,13 +82,12 @@ class ButtonPicker: UIButton {
     
     @objc func recalculatePhotosCount(_ notification: Notification) {
         guard let sender = notification.object as? ImageStack else { return }
-        numberLabel.text = sender.assets.isEmpty ? "" : String(sender.assets.count)
+        print(">>>> recalculatePhotosCount:", sender.photos.count)
+        numberLabel.text = sender.photos.isEmpty ? "" : String(sender.photos.count)
     }
     
     @objc func pickerButtonDidPress(_ button: UIButton) {
         backgroundColor = UIColor.white
-        numberLabel.textColor = UIColor.black
-        numberLabel.sizeToFit()
         delegate?.buttonDidPress()
     }
     

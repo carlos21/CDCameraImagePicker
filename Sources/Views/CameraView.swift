@@ -214,7 +214,7 @@ class CameraView: UIViewController {
         camera.flash(mapping[title] ?? .auto)
     }
     
-    func takePicture(_ completion: @escaping () -> Void) {
+    func takePicture(_ completion: @escaping (String?) -> Void) {
         guard let previewLayer = previewLayer else { return }
         
         UIView.animate(withDuration: 0.1, animations: {
@@ -225,19 +225,19 @@ class CameraView: UIViewController {
             })
         })
         
-        camera.takePhoto(previewLayer, orientation: self.currentOrientation) {
-            completion()
+        camera.takePhoto(previewLayer, orientation: self.currentOrientation) { localIdentifier in
             self.delegate?.imageToLibrary()
+            completion(localIdentifier)
         }
     }
     
     // MARK: - Timer methods
     
     @objc func timerDidFire() {
-        UIView.animate(withDuration: 0.3, animations: { [unowned self] in
-            self.focusImageView.alpha = 0
-        }, completion: { _ in
-                self.focusImageView.transform = CGAffineTransform.identity
+        UIView.animate(withDuration: 0.3, animations: { [weak self] in
+            self?.focusImageView.alpha = 0
+        }, completion: { [weak self] _ in
+            self?.focusImageView.transform = CGAffineTransform.identity
         })
     }
     
