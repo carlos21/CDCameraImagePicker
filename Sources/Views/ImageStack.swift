@@ -2,7 +2,7 @@ import UIKit
 
 class ImageStack {
     
-    var photos = [PhotoData]()
+    private(set) var photos = [PhotoData]()
     
     private var photosDictionary = [String: PhotoData]()
     var smallImages: [UIImage] { photos.compactMap { $0.smallImage } }
@@ -24,6 +24,11 @@ class ImageStack {
         
         let name = Notification.Name(rawValue: Notifications.imageDidDrop)
         NotificationCenter.default.post(name: name, object: self, userInfo: [imageKey: photo])
+    }
+    
+    public func removeAll() {
+        photos.removeAll()
+        photosDictionary.removeAll()
     }
     
     /// Called when there is a new update on the camera rolll.

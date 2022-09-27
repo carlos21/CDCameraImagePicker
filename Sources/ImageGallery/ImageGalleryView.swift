@@ -190,8 +190,16 @@ extension ImageGalleryView: UICollectionViewDelegate {
     
     private func updateSelectedCell(cell: ImageGalleryViewCell, photo: PhotoData) {
         if !selectedStack.containsAsset(photo) {
+            if configuration.allowMultiplePhotoSelection == false {
+                guard let visibleCells = collectionView.visibleCells as? [ImageGalleryViewCell] else { return }
+                for cell in visibleCells where cell.selectedImageView.image != nil {
+                    cell.selectedImageView.image = nil
+                }
+                selectedStack.removeAll()
+            }
             cell.selectedImageView.image = AssetManager.getImage("selectedImageGallery")
             selectedStack.pushAsset(photo)
+            
         } else {
             cell.selectedImageView.image = nil
             selectedStack.dropAsset(photo)
