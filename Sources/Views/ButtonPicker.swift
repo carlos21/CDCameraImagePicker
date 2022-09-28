@@ -82,7 +82,6 @@ class ButtonPicker: UIButton {
     
     @objc func recalculatePhotosCount(_ notification: Notification) {
         guard let sender = notification.object as? ImageStack else { return }
-        print(">>>> recalculatePhotosCount:", sender.photos.count)
         numberLabel.text = sender.photos.isEmpty ? "" : String(sender.photos.count)
     }
     
@@ -92,7 +91,6 @@ class ButtonPicker: UIButton {
     }
     
     @objc func pickerButtonDidHighlight(_ button: UIButton) {
-        numberLabel.textColor = UIColor.white
         backgroundColor = UIColor(red: 0.3, green: 0.3, blue: 0.3, alpha: 1)
     }
 }
