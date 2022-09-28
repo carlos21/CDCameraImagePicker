@@ -20,7 +20,7 @@ open class BottomContainerView: UIView {
     
     lazy var pickerButton: ButtonPicker = { [unowned self] in
         let pickerButton = ButtonPicker(config: self.config)
-        pickerButton.setTitleColor(UIColor.white, for: UIControl.State())
+        pickerButton.setTitleColor(UIColor.black, for: UIControl.State())
         pickerButton.delegate = self
         pickerButton.numberLabel.isHidden = false
         return pickerButton
