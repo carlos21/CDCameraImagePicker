@@ -19,7 +19,6 @@ open class CDCameraImagePickerController: UIViewController {
     var stack = ImageStack()
     open var imageLimit = 0
     open var preferredImageSize: CGSize?
-    open var startOnFrontCamera = false
     
     var totalSize: CGSize { return UIScreen.main.bounds.size }
     var initialFrame: CGRect?
@@ -70,10 +69,9 @@ open class CDCameraImagePickerController: UIViewController {
         return view
     }()
     
-    lazy var cameraController: CameraView = {
+    lazy var cameraView: CameraView = {
         let controller = CameraView(configuration: self.config)
         controller.delegate = self
-        controller.startOnFrontCamera = self.startOnFrontCamera
         return controller
     }()
     
@@ -127,7 +125,7 @@ open class CDCameraImagePickerController: UIViewController {
     open override func viewDidLoad() {
         super.viewDidLoad()
         
-        for subview in [cameraController.view, galleryView, bottomContainer, topView, showMorePhotos] {
+        for subview in [cameraView.view, galleryView, bottomContainer, topView, showMorePhotos] {
             view.addSubview(subview!)
             subview?.translatesAutoresizingMaskIntoConstraints = false
         }
@@ -184,8 +182,24 @@ open class CDCameraImagePickerController: UIViewController {
         updateOrientation()
     }
     
+    open override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        let notificationCenter = NotificationCenter.default
+        notificationCenter.addObserver(self, selector: #selector(appMovedToBackground), name: UIApplication.willResignActiveNotification, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(appBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
+    }
+    
+    open override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        let notificationCenter = NotificationCenter.default
+        notificationCenter.removeObserver(self, name:UIApplication.willResignActiveNotification, object: nil)
+        notificationCenter.removeObserver(self, name: UIApplication.didBecomeActiveNotification, object: nil)
+    }
+    
     func updateOrientation() {
-        cameraController.previewLayer?.connection?.videoOrientation = Helper.transformOrientation(orientation: self.appOrientation)
+        cameraView.previewLayer?.connection?.videoOrientation = Helper.transformOrientation(orientation: self.appOrientation)
     }
     
     func checkStatus() {
@@ -297,6 +311,14 @@ open class CDCameraImagePickerController: UIViewController {
         }
     }
     
+    @objc func appMovedToBackground() {
+        cameraView.camera.stop()
+    }
+    
+    @objc func appBecomeActive() {
+        cameraView.camera.start()
+    }
+    
     // MARK: - Helpers
     
     open override var prefersStatusBarHidden: Bool {
@@ -355,7 +377,7 @@ open class CDCameraImagePickerController: UIViewController {
         guard !isTakingPicture else { return }
         isTakingPicture = true
         bottomContainer.stackView.startLoader()
-        cameraController.takePicture { [weak self] localIdentifier in
+        cameraView.takePicture { [weak self] localIdentifier in
             DispatchQueue.main.async {
                 self?.isTakingPicture = false
                 self?.stack.lastLocalIdentifier = localIdentifier
@@ -460,11 +482,11 @@ extension CDCameraImagePickerController: PHPhotoLibraryChangeObserver {
 extension CDCameraImagePickerController: TopViewDelegate {
     
     func flashButtonDidPress(_ title: String) {
-        cameraController.flashCamera(title)
+        cameraView.flashCamera(title)
     }
     
     func rotateDeviceDidPress() {
-        cameraController.rotateCamera()
+        cameraView.rotateCamera()
     }
 }
 

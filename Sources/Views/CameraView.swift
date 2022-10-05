@@ -21,7 +21,6 @@ class CameraView: UIViewController {
     weak var delegate: CameraViewDelegate?
     var previewLayer: AVCaptureVideoPreviewLayer?
     var animationTimer: Timer?
-    var startOnFrontCamera: Bool = false
     
     private let minimumZoomFactor: CGFloat = 1.0
     private let maximumZoomFactor: CGFloat = 3.0
@@ -129,13 +128,10 @@ class CameraView: UIViewController {
         }
         
         camera.delegate = self
-        camera.setup(self.startOnFrontCamera)
+        camera.setup()
         
         setupMotion()
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
+        setupPreviewLayer()
     }
     
     deinit {
@@ -314,7 +310,5 @@ extension CameraView: CameraDelegate {
         }
     }
     
-    func cameraManDidStart(_ cameraMan: Camera) {
-        setupPreviewLayer()
-    }
+    func cameraManDidStart(_ cameraMan: Camera) {}
 }

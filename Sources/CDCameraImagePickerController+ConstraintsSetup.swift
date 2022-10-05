@@ -103,7 +103,7 @@ extension TopView {
 extension CDCameraImagePickerController {
     
     func setupConstraints() {
-        let cameraMainView: UIView = cameraController.view
+        let cameraMainView: UIView = cameraView.view
 //        let attributes: [NSLayoutConstraint.Attribute] = [.bottom, .right, .width]
 //        let topViewAttributes: [NSLayoutConstraint.Attribute] = [.left, .top, .width]
         

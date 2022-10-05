@@ -33,8 +33,6 @@ class Camera {
     
     var cameraOutput = CameraCaptureOutput()
     
-    var startOnFrontCamera: Bool = false
-    
     // MARK: - Life cycle
 
     deinit {
@@ -43,8 +41,7 @@ class Camera {
 
     // MARK: - Setup
     
-    func setup(_ startOnFrontCamera: Bool = false) {
-        self.startOnFrontCamera = startOnFrontCamera
+    func setup() {
         checkPermission()
     }
     
@@ -58,6 +55,18 @@ class Camera {
                 guard let self = self else { return }
                 self.delegate?.cameraMan(self, didChangeInput: input)
             }
+        }
+    }
+    
+    func removeInputs() {
+        for input in session.inputs {
+            session.removeInput(input)
+        }
+    }
+    
+    func removeOutputs() {
+        for output in session.outputs {
+            session.removeOutput(output)
         }
     }
     
@@ -95,8 +104,8 @@ class Camera {
         return session.inputs.first as? AVCaptureDeviceInput
     }
     
-    fileprivate func start() {
-        guard let input = (self.startOnFrontCamera) ? frontCamera ?? backCamera : backCamera else { return }
+    func start() {
+        guard let input = backCamera, !session.isRunning else { return }
         addInput(input)
         
         if session.canAddOutput(cameraOutput.output) {
@@ -114,7 +123,13 @@ class Camera {
     }
     
     func stop() {
-        self.session.stopRunning()
+        queue.async { [weak self] in
+            guard let self = self else { return }
+            guard self.session.isRunning else { return }
+            self.removeInputs()
+            self.removeOutputs()
+            self.session.stopRunning()
+        }
     }
     
     func switchCamera(_ completion: (() -> Void)? = nil) {
