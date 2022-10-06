@@ -39,6 +39,10 @@ class ViewController: UIViewController {
 
 extension ViewController: CDCameraImagePickerControllerDelegate {
     
+    func imagePickerCancelNoPermissions(_ imagePicker: CDCameraImagePickerController) {
+        imagePicker.dismiss(animated: true)
+    }
+    
     func imagePickerDoneDidPress(_ imagePicker: CDCameraImagePickerController, photos: [PhotoData]) {
         imagePicker.dismiss(animated: true, completion: nil)
     }

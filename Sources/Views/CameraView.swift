@@ -59,34 +59,6 @@ class CameraView: UIViewController {
         return view
     }()
     
-    lazy var noCameraLabel: UILabel = { [unowned self] in
-        let label = UILabel()
-        label.font = self.configuration.noCameraFont
-        label.textColor = self.configuration.noCameraColor
-        label.text = self.configuration.noCameraTitle
-        label.sizeToFit()
-        return label
-    }()
-    
-    lazy var noCameraButton: UIButton = { [unowned self] in
-        let button = UIButton(type: .system)
-        let attributes = [
-            NSAttributedString.Key.font: self.configuration.settingsFont,
-            NSAttributedString.Key.foregroundColor: self.configuration.settingsColor
-        ]
-        let title = NSAttributedString(string: self.configuration.settingsTitle,
-                                       attributes: attributes)
-        
-        button.setAttributedTitle(title, for: UIControl.State())
-        button.contentEdgeInsets = UIEdgeInsets(top: 5.0, left: 10.0, bottom: 5.0, right: 10.0)
-        button.sizeToFit()
-        button.layer.borderColor = self.configuration.settingsColor.cgColor
-        button.layer.borderWidth = 1
-        button.layer.cornerRadius = 4
-        button.addTarget(self, action: #selector(settingsButtonDidTap), for: .touchUpInside)
-        return button
-    }()
-    
     lazy var tapGestureRecognizer: UITapGestureRecognizer = { [unowned self] in
         let gesture = UITapGestureRecognizer()
         gesture.addTarget(self, action: #selector(tapGestureRecognizerHandler(_:)))
@@ -128,7 +100,7 @@ class CameraView: UIViewController {
         }
         
         camera.delegate = self
-        camera.setup()
+//        camera.setup()
         
         setupMotion()
         setupPreviewLayer()
@@ -173,9 +145,6 @@ class CameraView: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        let centerX = view.bounds.width / 2
-        noCameraLabel.center = CGPoint(x: centerX, y: view.bounds.height / 2 - 80)
-        noCameraButton.center = CGPoint(x: centerX, y: noCameraLabel.frame.maxY + 20)
         blurView.frame = view.bounds
         containerView.frame = view.bounds
         capturedImageView.frame = view.bounds
@@ -286,20 +255,11 @@ class CameraView: UIViewController {
         default: break
         }
     }
-    
-    // MARK: - Private helpers
-    
-    func showNoCamera(_ show: Bool) {
-        [noCameraButton, noCameraLabel].forEach {
-            show ? view.addSubview($0) : $0.removeFromSuperview()
-        }
-    }
 }
 
 extension CameraView: CameraDelegate {
     
     func cameraManNotAvailable(_ cameraMan: Camera) {
-        showNoCamera(true)
         focusImageView.isHidden = true
         delegate?.cameraNotAvailable()
     }

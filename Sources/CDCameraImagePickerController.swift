@@ -6,6 +6,7 @@ public protocol CDCameraImagePickerControllerDelegate: NSObjectProtocol {
     
     func imagePickerDoneDidPress(_ imagePicker: CDCameraImagePickerController, photos: [PhotoData])
     func imagePickerCancelDidPress(_ imagePicker: CDCameraImagePickerController)
+    func imagePickerCancelNoPermissions(_ imagePicker: CDCameraImagePickerController)
 }
 
 open class CDCameraImagePickerController: UIViewController {
@@ -203,19 +204,25 @@ open class CDCameraImagePickerController: UIViewController {
     }
     
     func checkStatus() {
-        let currentStatus = PHPhotoLibrary.authorizationStatus()
+        let photoStatus = PHPhotoLibrary.authorizationStatus()
+        let cameraStatus = AVCaptureDevice.authorizationStatus(for: AVMediaType.video)
         
-        guard currentStatus != .authorized else { return }
+        if photoStatus == .authorized && cameraStatus == .authorized {
+            cameraView.camera.setup()
+            return
+        }
 
-        if currentStatus == .notDetermined { hideViews() }
+        if photoStatus == .notDetermined || cameraStatus == .notDetermined { hideViews() }
         
         PHPhotoLibrary.requestAuthorization { [ weak self] authorizationStatus in
-            guard let self = self else { return }
+            guard let self else { return }
             DispatchQueue.main.async {
                 if authorizationStatus == .denied {
+                    self.hideViews()
                     self.presentAskPermissionAlert()
                 } else if authorizationStatus == .authorized {
                     self.permissionGranted()
+                    self.cameraView.camera.setup()
                 }
             }
         }
@@ -228,12 +235,18 @@ open class CDCameraImagePickerController: UIViewController {
         
         let alertAction = UIAlertAction(title: config.OKButtonTitle, style: .default) { _ in
             if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                self.dismiss(animated: true, completion: {
+                    self.delegate?.imagePickerCancelNoPermissions(self)
+                })
                 UIApplication.shared.open(settingsURL, options: [:], completionHandler: nil)
             }
         }
         
-        let cancelAction = UIAlertAction(title: config.cancelButtonTitle, style: .cancel) { _ in
-            self.dismiss(animated: true, completion: nil)
+        let cancelAction = UIAlertAction(title: config.cancelButtonTitle, style: .cancel) { [weak self] _ in
+            guard let self else { return }
+            self.dismiss(animated: true, completion: {
+                self.delegate?.imagePickerCancelNoPermissions(self)
+            })
         }
         
         alertController.addAction(alertAction)
@@ -242,10 +255,16 @@ open class CDCameraImagePickerController: UIViewController {
     }
     
     func hideViews() {
+        galleryView.isHidden = true
+        bottomContainer.isHidden = true
+        topView.isHidden = true
         enableGestures(false)
     }
     
     func permissionGranted() {
+        galleryView.isHidden = false
+        bottomContainer.isHidden = false
+        topView.isHidden = false
         galleryView.fetchPhotos()
         enableGestures(true)
     }
@@ -418,9 +437,8 @@ extension CDCameraImagePickerController: CameraViewDelegate {
     }
     
     func cameraNotAvailable() {
-        topView.flashButton.isHidden = true
-        topView.rotateCamera.isHidden = true
-        bottomContainer.pickerButton.isEnabled = false
+        hideViews()
+        presentAskPermissionAlert()
     }
     
     // MARK: - Rotation

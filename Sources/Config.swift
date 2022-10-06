@@ -31,7 +31,7 @@ import UIKit
     @objc public var noCameraTitle = "Camera is not available"
     @objc public var settingsTitle = "Settings"
     @objc public var requestPermissionTitle = "Permission denied"
-    @objc public var requestPermissionMessage = "Please, allow the application to access to your photo library."
+    @objc public var requestPermissionMessage = "Please, allow the application to access to your camera and photo library."
     
     // MARK: Dimensions
     
