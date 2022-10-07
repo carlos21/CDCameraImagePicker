@@ -27,11 +27,7 @@ open class CDCameraImagePickerController: UIViewController {
     var numberOfCells: Int?
     public var statusBarHidden: Bool?
     
-    fileprivate var isTakingPicture = false {
-        didSet {
-            bottomContainer.pickerButton.isEnabled = !isTakingPicture
-        }
-    }
+    fileprivate var isTakingPicture = false
     
     open var doneButtonTitle: String? {
         didSet {
@@ -435,6 +431,7 @@ extension CDCameraImagePickerController: BottomContainerViewDelegate {
     
     func pickerButtonDidPress() {
         takePicture()
+        bottomContainer.pickerButton.isEnabled = false
     }
     
     func doneButtonDidPress() {
@@ -459,7 +456,7 @@ extension CDCameraImagePickerController: CameraViewDelegate {
     }
     
     func imageToLibrary() {
-        bottomContainer.pickerButton.isEnabled = true
+        
     }
     
     func cameraNotAvailable() {
@@ -521,8 +518,13 @@ extension CDCameraImagePickerController: PHPhotoLibraryChangeObserver {
               let changesResult = changeInstance.changeDetails(for: fetchResult) else {
             return
         }
-        DispatchQueue.main.async {
-            self.galleryView.fetchPhotos(fetchResult: changesResult.fetchResultAfterChanges)
+        
+        self.galleryView.fetchPhotos(fetchResult: changesResult.fetchResultAfterChanges) { [weak self] in
+            DispatchQueue.main.async {
+                if changesResult.hasIncrementalChanges {
+                    self?.bottomContainer.pickerButton.isEnabled = true
+                }
+            }
         }
     }
 }
