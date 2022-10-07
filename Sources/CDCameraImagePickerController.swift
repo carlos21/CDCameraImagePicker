@@ -422,20 +422,32 @@ open class CDCameraImagePickerController: UIViewController {
         cameraView.takePicture { [weak self] localIdentifier in
             DispatchQueue.main.async {
                 self?.isTakingPicture = false
-                self?.stack.lastLocalIdentifier = localIdentifier
+                
+                guard let localIdentifier = localIdentifier else {
+                    assertionFailure("No localIdentifier. This means something happened when saving the photo.")
+                    return
+                }
+                self?.stack.register(localIdentifier: localIdentifier)
             }
         }
     }
     
     var timer = Timer()
+    var count = 0
+    let maxCount = 3000
     
     public func takePictureEvery(seconds: TimeInterval) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
-            self?.timer = Timer.scheduledTimer(withTimeInterval: seconds, repeats: true, block: { _ in
-                self?.takePicture()
+            guard let self else { return }
+            self.timer = Timer.scheduledTimer(withTimeInterval: seconds, repeats: true, block: { _ in
+                self.takePicture()
+                self.count += 1
+                
+                if self.count >= self.maxCount {
+                    self.timer.invalidate()
+                }
             })
         }
-        
     }
 }
 

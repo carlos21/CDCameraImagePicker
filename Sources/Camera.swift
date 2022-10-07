@@ -163,6 +163,7 @@ class Camera {
                    completion: ((String?) -> Void)? = nil) {
         cameraOutput.takePhoto(previewLayer: previewLayer, orientation: orientation) { [weak self] image in
             guard let image = image else {
+                assertionFailure("There is no image!!")
                 completion?(nil)
                 return
             }

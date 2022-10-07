@@ -43,8 +43,14 @@ class CameraCaptureOutput: NSObject {
         takePhotoCompletion = completion
         self.orientation = orientation
         
-        guard let videoPreviewLayerOrientation = previewLayer.connection?.videoOrientation else { return }
-        guard let photoOutputConnection = output.connection(with: .video) else { return }
+        guard let videoPreviewLayerOrientation = previewLayer.connection?.videoOrientation else {
+            assertionFailure("videoOrientation failed!!")
+            return
+        }
+        guard let photoOutputConnection = output.connection(with: .video) else {
+            assertionFailure("connection with video failed!!")
+            return
+        }
         photoOutputConnection.videoOrientation = videoPreviewLayerOrientation
         output.capturePhoto(with: settings, delegate: self)
     }
@@ -53,8 +59,14 @@ class CameraCaptureOutput: NSObject {
 extension CameraCaptureOutput: AVCapturePhotoCaptureDelegate {
     
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-        guard let imageData = photo.fileDataRepresentation() else { return }
-        guard let image = UIImage(data: imageData) else { return }
+        guard let imageData = photo.fileDataRepresentation() else {
+            assertionFailure("fileDataRepresentation() failed!!")
+            return
+        }
+        guard let image = UIImage(data: imageData) else {
+            assertionFailure("Could not instantiate UIImage from data")
+            return
+        }
         let transformedimage = image.transformedImage(interfaceOrientation: self.orientation ?? UIDevice.current.orientation.interfaceOrientation)
         takePhotoCompletion?(transformedimage)
     }

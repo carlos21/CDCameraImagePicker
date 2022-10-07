@@ -5,7 +5,7 @@ class ImageStack {
     private(set) var photos = [PhotoData]()
     
     private var photosDictionary = [String: PhotoData]()
-    var lastLocalIdentifier: String?
+    private(set) var localIdentifiersDictionary = [String: Bool]()
     
     fileprivate let imageKey = "image"
     
@@ -49,14 +49,14 @@ class ImageStack {
         allPhotos.forEach { photo in
             switch photo {
             case .asset(let asset, _):
-                if lastLocalIdentifier == asset.localIdentifier {
+                if let value = localIdentifiersDictionary[asset.localIdentifier], !value {
+                    localIdentifiersDictionary[asset.localIdentifier] = true
                     pushAsset(.asset(asset, nil))
                 }
             case .image:
                 break
             }
         }
-        lastLocalIdentifier = nil
         
         resetPhotosDictionary()
         
@@ -75,6 +75,10 @@ class ImageStack {
             guard let localIdentifier = $0.localIdentifier else { return }
             photosDictionary[localIdentifier] = $0
         }
+    }
+    
+    func register(localIdentifier: String) {
+        localIdentifiersDictionary[localIdentifier] = false
     }
 }
 
