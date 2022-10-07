@@ -8,6 +8,7 @@ protocol CameraViewDelegate: AnyObject {
     func setFlashButtonHidden(_ hidden: Bool)
     func imageToLibrary()
     func cameraNotAvailable()
+    func cameraManDidStart()
 }
 
 class CameraView: UIViewController {
@@ -270,5 +271,7 @@ extension CameraView: CameraDelegate {
         }
     }
     
-    func cameraManDidStart(_ cameraMan: Camera) {}
+    func cameraManDidStart(_ cameraMan: Camera) {
+        delegate?.cameraManDidStart()
+    }
 }

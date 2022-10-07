@@ -170,7 +170,6 @@ open class CDCameraImagePickerController: UIViewController {
                                    height: galleryHeight)
         galleryView.updateFrames()
         checkStatus()
-        showSelectMorePhotosButtonIfNeeded()
         
         initialFrame = galleryView.frame
         initialContentOffset = galleryView.collectionView.contentOffset
@@ -189,14 +188,21 @@ open class CDCameraImagePickerController: UIViewController {
         let notificationCenter = NotificationCenter.default
         notificationCenter.addObserver(self, selector: #selector(appMovedToBackground), name: UIApplication.willResignActiveNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(appBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(captureSessionError(notification:)), name: .AVCaptureSessionRuntimeError, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(sessionInterrupted(notification:)), name: .AVCaptureSessionWasInterrupted, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(sessionDidStopRunning(notification:)), name: .AVCaptureSessionDidStopRunning, object: nil)
+        
     }
     
     open override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
         let notificationCenter = NotificationCenter.default
-        notificationCenter.removeObserver(self, name:UIApplication.willResignActiveNotification, object: nil)
+        notificationCenter.removeObserver(self, name: UIApplication.willResignActiveNotification, object: nil)
         notificationCenter.removeObserver(self, name: UIApplication.didBecomeActiveNotification, object: nil)
+        notificationCenter.removeObserver(self, name: .AVCaptureSessionRuntimeError, object: nil)
+        notificationCenter.removeObserver(self, name: .AVCaptureSessionWasInterrupted, object: nil)
+        notificationCenter.removeObserver(self, name: .AVCaptureSessionDidStopRunning, object: nil)
     }
     
     func updateOrientation() {
@@ -208,6 +214,7 @@ open class CDCameraImagePickerController: UIViewController {
         let cameraStatus = AVCaptureDevice.authorizationStatus(for: AVMediaType.video)
         
         if photoStatus == .authorized && cameraStatus == .authorized {
+            permissionGranted()
             cameraView.camera.setup()
             return
         }
@@ -255,6 +262,7 @@ open class CDCameraImagePickerController: UIViewController {
     }
     
     func hideViews() {
+        showMorePhotos.isHidden = true
         galleryView.isHidden = true
         bottomContainer.isHidden = true
         topView.isHidden = true
@@ -328,6 +336,24 @@ open class CDCameraImagePickerController: UIViewController {
         if imageLimit == 1 {
             doneButtonDidPress()
         }
+    }
+    
+    @objc func captureSessionError(notification: Notification) {
+        guard let error = notification.userInfo?[AVCaptureSessionErrorKey] as? AVError else { return }
+        print("Capture session runtime error: \(error)")
+    }
+    
+    @objc func sessionInterrupted(notification: Notification) {
+        if let userInfoValue = notification.userInfo?[AVCaptureSessionInterruptionReasonKey] as AnyObject?,
+           let reasonIntegerValue = userInfoValue.integerValue,
+           let reason = AVCaptureSession.InterruptionReason(rawValue: reasonIntegerValue) {
+            print("Capture session was interrupted with reason \(reason)")
+        }
+    }
+    
+    @objc func sessionDidStopRunning(notification: Notification) {
+        let e = notification
+        print("sessionDidStopRunning \(e)")
     }
     
     @objc func appMovedToBackground() {
@@ -439,6 +465,10 @@ extension CDCameraImagePickerController: CameraViewDelegate {
     func cameraNotAvailable() {
         hideViews()
         presentAskPermissionAlert()
+    }
+    
+    func cameraManDidStart() {
+        showSelectMorePhotosButtonIfNeeded()
     }
     
     // MARK: - Rotation

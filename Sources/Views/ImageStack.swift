@@ -5,7 +5,6 @@ class ImageStack {
     private(set) var photos = [PhotoData]()
     
     private var photosDictionary = [String: PhotoData]()
-    var smallImages: [UIImage] { photos.compactMap { $0.smallImage } }
     var lastLocalIdentifier: String?
     
     fileprivate let imageKey = "image"
