@@ -282,6 +282,7 @@ open class CDCameraImagePickerController: UIViewController {
         
         NotificationCenter.default.removeObserver(self)
         PHPhotoLibrary.shared().unregisterChangeObserver(self)
+        timer.invalidate()
     }
     
     func subscribe() {
@@ -414,7 +415,7 @@ open class CDCameraImagePickerController: UIViewController {
         }
     }
     
-    fileprivate func takePicture() {
+    func takePicture() {
         guard !isTakingPicture else { return }
         isTakingPicture = true
         bottomContainer.stackView.startLoader()
@@ -425,13 +426,24 @@ open class CDCameraImagePickerController: UIViewController {
             }
         }
     }
+    
+    var timer = Timer()
+    
+    public func takePictureEvery(seconds: TimeInterval) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
+            self?.timer = Timer.scheduledTimer(withTimeInterval: seconds, repeats: true, block: { _ in
+                self?.takePicture()
+            })
+        }
+        
+    }
 }
 
 extension CDCameraImagePickerController: BottomContainerViewDelegate {
     
     func pickerButtonDidPress() {
-        takePicture()
         bottomContainer.pickerButton.isEnabled = false
+        takePicture()
     }
     
     func doneButtonDidPress() {
