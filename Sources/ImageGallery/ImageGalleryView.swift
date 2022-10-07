@@ -140,20 +140,21 @@ open class ImageGalleryView: UIView {
     }
     
     private func updatePhotosData(with newFetchResult: PHFetchResult<PHAsset>) {
-        self.fetchResult = newFetchResult
-        
-        // use cached image so it's not needed to retrieve it again
-        var newPhotos = [PhotoData]()
-        newFetchResult.assets.forEach { asset in
-            if let photoData = photosDictionary[asset.localIdentifier] {
-                newPhotos.append(.asset(asset, photoData.cachedImage))
-            } else {
-                newPhotos.append(.asset(asset, nil))
+        DispatchQueue.main.async {
+            self.fetchResult = newFetchResult
+            
+            // use cached image so it's not needed to retrieve it again
+            var newPhotos = [PhotoData]()
+            newFetchResult.assets.forEach { asset in
+                if let photoData = self.photosDictionary[asset.localIdentifier] {
+                    newPhotos.append(.asset(asset, photoData.cachedImage))
+                } else {
+                    newPhotos.append(.asset(asset, nil))
+                }
             }
+            self.photos = newPhotos
+            self.updateGalleryView()
         }
-        self.photos = newPhotos
-        
-        updateGalleryView()
     }
     
     func updateGalleryView() {
