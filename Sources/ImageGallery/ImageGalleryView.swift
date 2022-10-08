@@ -140,9 +140,9 @@ open class ImageGalleryView: UIView {
     }
     
     private func updatePhotosData(with newFetchResult: PHFetchResult<PHAsset>) {
+        self.fetchResult = newFetchResult
+        
         DispatchQueue.main.async {
-            self.fetchResult = newFetchResult
-            
             // use cached image so it's not needed to retrieve it again
             var newPhotos = [PhotoData]()
             newFetchResult.assets.forEach { asset in
@@ -161,7 +161,6 @@ open class ImageGalleryView: UIView {
         DispatchQueue.main.async {
             self.statusLabel.text = self.photos.isEmpty ? self.configuration.noImagesTitle : ""
             self.collectionView.alpha = self.photos.isEmpty ? 0 : 1
-            self.collectionView.reloadData()
             self.selectedStack.resetToAvailableAssets(self.photos)
         }
     }

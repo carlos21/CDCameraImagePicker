@@ -43,6 +43,10 @@ class ImageStack {
         photoIndexesToDelete.sorted { $0 > $1 }.forEach { index in
             photos.remove(at: index)
         }
+
+//        print("------------------------")
+//        print("Before:")
+//        localIdentifiersDictionary.forEach { print("\($0): \($1)") }
         
         // push asset based on the last local identifier
         // this is means it was added from outside
@@ -57,6 +61,10 @@ class ImageStack {
                 break
             }
         }
+//        print("After:")
+//        localIdentifiersDictionary.forEach { print("\($0): \($1)") }
+//        print("------------------------")
+//        print("")
         
         resetPhotosDictionary()
         

@@ -424,6 +424,7 @@ open class CDCameraImagePickerController: UIViewController {
                 self?.isTakingPicture = false
                 
                 guard let localIdentifier = localIdentifier else {
+                    self?.bottomContainer.pickerButton.isEnabled = true
                     assertionFailure("No localIdentifier. This means something happened when saving the photo.")
                     return
                 }

@@ -44,10 +44,12 @@ class CameraCaptureOutput: NSObject {
         self.orientation = orientation
         
         guard let videoPreviewLayerOrientation = previewLayer.connection?.videoOrientation else {
+            takePhotoCompletion?(nil)
             assertionFailure("videoOrientation failed!!")
             return
         }
         guard let photoOutputConnection = output.connection(with: .video) else {
+            takePhotoCompletion?(nil)
             assertionFailure("connection with video failed!!")
             return
         }
@@ -60,10 +62,12 @@ extension CameraCaptureOutput: AVCapturePhotoCaptureDelegate {
     
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         guard let imageData = photo.fileDataRepresentation() else {
+            takePhotoCompletion?(nil)
             assertionFailure("fileDataRepresentation() failed!!")
             return
         }
         guard let image = UIImage(data: imageData) else {
+            takePhotoCompletion?(nil)
             assertionFailure("Could not instantiate UIImage from data")
             return
         }
