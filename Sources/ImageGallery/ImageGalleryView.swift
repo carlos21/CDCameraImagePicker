@@ -224,7 +224,7 @@ extension ImageGalleryView: UICollectionViewDataSource {
                                willDisplay cell: UICollectionViewCell,
                                forItemAt indexPath: IndexPath) {
         guard let imageCell = cell as? ImageGalleryViewCell else { return }
-        let photo = photos[indexPath.row]
+        guard let photo = photos[safe: indexPath.row] else { return }
         
         switch photo {
         case .asset(let asset, let cachedImage):
@@ -251,6 +251,7 @@ extension ImageGalleryView: UICollectionViewDataSource {
                                      image: UIImage,
                                      photo: PhotoData,
                                      indexPath: IndexPath) {
+        guard photos[safe: indexPath.row] != nil else { return }
         photos[indexPath.row] = .asset(asset, image)
         cell.configureCell(image)
         
@@ -273,5 +274,12 @@ extension ImageGalleryView {
     
     struct CollectionView {
         static let reusableIdentifier = "imagesReusableIdentifier"
+    }
+}
+
+public extension Collection {
+
+    subscript(safe index: Index) -> Element? {
+        return indices.contains(index) ? self[index] : nil
     }
 }
