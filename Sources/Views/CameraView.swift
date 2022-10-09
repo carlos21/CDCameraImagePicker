@@ -101,7 +101,6 @@ class CameraView: UIViewController {
         }
         
         camera.delegate = self
-//        camera.setup()
         
         setupMotion()
         setupPreviewLayer()
@@ -109,6 +108,7 @@ class CameraView: UIViewController {
     
     deinit {
         coreMotion.stopAccelerometerUpdates()
+        print(">>> deinit CameraView")
     }
     
     func setupMotion() {
@@ -117,10 +117,10 @@ class CameraView: UIViewController {
 
         //  Using main queue is not recommended. So create new operation queue and pass it to startAccelerometerUpdatesToQueue.
         //  Dispatch U/I code to main thread using dispach_async in the handler.
-        coreMotion.startAccelerometerUpdates( to: OperationQueue() ) { data, error in
+        coreMotion.startAccelerometerUpdates( to: OperationQueue() ) { [ weak self] data, error in
             if let data = data {
                 DispatchQueue.main.async {
-                    self.currentOrientation = abs( data.acceleration.y ) < abs( data.acceleration.x )
+                    self?.currentOrientation = abs( data.acceleration.y ) < abs( data.acceleration.x )
                                                ?   data.acceleration.x > 0 ? .landscapeRight : .landscapeLeft
                                                :   data.acceleration.y > 0 ? .portraitUpsideDown : .portrait
                 }
@@ -164,12 +164,12 @@ class CameraView: UIViewController {
     // MARK: - Camera actions
     
     func rotateCamera() {
-        UIView.animate(withDuration: 0.3, animations: {
-            self.containerView.alpha = 1
-        }, completion: { _ in
-            self.camera.switchCamera {
+        UIView.animate(withDuration: 0.3, animations: { [weak self] in
+            self?.containerView.alpha = 1
+        }, completion: { [weak self] _ in
+            self?.camera.switchCamera {
                 UIView.animate(withDuration: 0.7, animations: {
-                    self.containerView.alpha = 0
+                    self?.containerView.alpha = 0
                 })
             }
         })
@@ -183,16 +183,16 @@ class CameraView: UIViewController {
     func takePicture(_ completion: @escaping (String?) -> Void) {
         guard let previewLayer = previewLayer else { return }
         
-        UIView.animate(withDuration: 0.1, animations: {
-            self.capturedImageView.alpha = 1
-        }, completion: { _ in
+        UIView.animate(withDuration: 0.1, animations: { [weak self] in
+            self?.capturedImageView.alpha = 1
+        }, completion: { [weak self] _ in
             UIView.animate(withDuration: 0.1, animations: {
-                self.capturedImageView.alpha = 0
+                self?.capturedImageView.alpha = 0
             })
         })
         
-        camera.takePhoto(previewLayer, orientation: self.currentOrientation) { localIdentifier in
-            self.delegate?.imageToLibrary()
+        camera.takePhoto(previewLayer, orientation: self.currentOrientation) { [weak self] localIdentifier in
+            self?.delegate?.imageToLibrary()
             completion(localIdentifier)
         }
     }
@@ -216,10 +216,11 @@ class CameraView: UIViewController {
         camera.focus(convertedPoint)
         
         focusImageView.center = point
-        UIView.animate(withDuration: 0.5, animations: {
-            self.focusImageView.alpha = 1
-            self.focusImageView.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
-        }, completion: { _ in
+        UIView.animate(withDuration: 0.5, animations: { [weak self] in
+            self?.focusImageView.alpha = 1
+            self?.focusImageView.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
+        }, completion: { [weak self] _ in
+            guard let self else { return }
             self.animationTimer = Timer.scheduledTimer(timeInterval: 1, target: self,
                                                        selector: #selector(CameraView.timerDidFire), userInfo: nil, repeats: false)
         })

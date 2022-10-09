@@ -9,6 +9,7 @@
 import Foundation
 import AVFoundation
 import UIKit
+import OSLog
 
 class CameraCaptureOutput: NSObject {
     
@@ -37,6 +38,10 @@ class CameraCaptureOutput: NSObject {
         return settings
     }
     
+    deinit {
+        print(">>> deinit CameraCaptureOutput")
+    }
+    
     // MARK: - Methods
     
     func takePhoto(previewLayer: AVCaptureVideoPreviewLayer, orientation: UIInterfaceOrientation, completion: TakePhotoHandler? = nil) {
@@ -46,11 +51,13 @@ class CameraCaptureOutput: NSObject {
         guard let videoPreviewLayerOrientation = previewLayer.connection?.videoOrientation else {
             takePhotoCompletion?(nil)
             assertionFailure("videoOrientation failed!!")
+            os_log(">>> VideoOrientation failed!!", log: OSLog.default, type: .error)
             return
         }
         guard let photoOutputConnection = output.connection(with: .video) else {
             takePhotoCompletion?(nil)
             assertionFailure("connection with video failed!!")
+            os_log(">>> connection with video failed!!", log: OSLog.default, type: .error)
             return
         }
         photoOutputConnection.videoOrientation = videoPreviewLayerOrientation
@@ -64,11 +71,13 @@ extension CameraCaptureOutput: AVCapturePhotoCaptureDelegate {
         guard let imageData = photo.fileDataRepresentation() else {
             takePhotoCompletion?(nil)
             assertionFailure("fileDataRepresentation() failed!!")
+            os_log(">>> fileDataRepresentation() failed!!", log: OSLog.default, type: .error)
             return
         }
         guard let image = UIImage(data: imageData) else {
             takePhotoCompletion?(nil)
             assertionFailure("Could not instantiate UIImage from data")
+            os_log(">>> Could not instantiate UIImage from data", log: OSLog.default, type: .error)
             return
         }
         let transformedimage = image.transformedImage(interfaceOrientation: self.orientation ?? UIDevice.current.orientation.interfaceOrientation)

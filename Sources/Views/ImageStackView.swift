@@ -49,6 +49,7 @@ class ImageStackView: UIView {
     
     deinit {
         NotificationCenter.default.removeObserver(self)
+        print(">>> ImageStackView")
     }
     
     // MARK: - Helpers
@@ -96,6 +97,11 @@ class ImageStackView: UIView {
         UIView.animate(withDuration: 0.3, animations: {
             self.activityView.alpha = 1.0
         })
+    }
+    
+    func stopLoader() {
+        activityView.stopAnimating()
+        activityView.alpha = 0.0
     }
 }
 

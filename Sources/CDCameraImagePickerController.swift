@@ -1,6 +1,7 @@
 import UIKit
 import MediaPlayer
 import Photos
+import OSLog
 
 public protocol CDCameraImagePickerControllerDelegate: NSObjectProtocol {
     
@@ -199,6 +200,8 @@ open class CDCameraImagePickerController: UIViewController {
         notificationCenter.removeObserver(self, name: .AVCaptureSessionRuntimeError, object: nil)
         notificationCenter.removeObserver(self, name: .AVCaptureSessionWasInterrupted, object: nil)
         notificationCenter.removeObserver(self, name: .AVCaptureSessionDidStopRunning, object: nil)
+        
+        timer.invalidate()
     }
     
     func updateOrientation() {
@@ -282,7 +285,8 @@ open class CDCameraImagePickerController: UIViewController {
         
         NotificationCenter.default.removeObserver(self)
         PHPhotoLibrary.shared().unregisterChangeObserver(self)
-        timer.invalidate()
+        
+        print(">>> deinit CDCameraImagePickerController")
     }
     
     func subscribe() {
@@ -422,10 +426,12 @@ open class CDCameraImagePickerController: UIViewController {
         cameraView.takePicture { [weak self] localIdentifier in
             DispatchQueue.main.async {
                 self?.isTakingPicture = false
+                self?.bottomContainer.stackView.stopLoader()
                 
                 guard let localIdentifier = localIdentifier else {
                     self?.bottomContainer.pickerButton.isEnabled = true
-                    assertionFailure("No localIdentifier. This means something happened when saving the photo.")
+//                    assertionFailure("No localIdentifier. This means something happened when saving the photo.")
+                    os_log(">>> No localIdentifier. This means something happened when saving the photo.", log: OSLog.default, type: .error)
                     return
                 }
                 self?.stack.register(localIdentifier: localIdentifier)

@@ -86,6 +86,10 @@ open class ImageGalleryView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    deinit {
+        print(">>> deinit ImageGalleryView")
+    }
+    
     func configure() {
         backgroundColor = configuration.mainColor
         

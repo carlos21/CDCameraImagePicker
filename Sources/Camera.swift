@@ -1,6 +1,7 @@
 import Foundation
 import AVFoundation
 import PhotosUI
+import OSLog
 
 protocol CameraDelegate: AnyObject {
     
@@ -37,6 +38,7 @@ class Camera {
 
     deinit {
         stop()
+        print(">>> deinit Camera")
     }
 
     // MARK: - Setup
@@ -163,7 +165,7 @@ class Camera {
                    completion: ((String?) -> Void)? = nil) {
         cameraOutput.takePhoto(previewLayer: previewLayer, orientation: orientation) { [weak self] image in
             guard let image = image else {
-                assertionFailure("There is no image!!")
+                os_log(">>> There is no image", log: OSLog.default, type: .error)
                 completion?(nil)
                 return
             }
