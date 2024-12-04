@@ -132,7 +132,7 @@ class CameraView: UIViewController {
         let layer = AVCaptureVideoPreviewLayer(session: camera.session)
         layer.backgroundColor = configuration.mainColor.cgColor
         layer.autoreverses = true
-        layer.videoGravity = AVLayerVideoGravity.resizeAspectFill
+        layer.videoGravity = AVLayerVideoGravity.resizeAspect
 
         view.layer.insertSublayer(layer, at: 0)
         layer.frame = view.layer.frame
@@ -149,6 +149,8 @@ class CameraView: UIViewController {
         blurView.frame = view.bounds
         containerView.frame = view.bounds
         capturedImageView.frame = view.bounds
+        
+        previewLayer?.frame = view.bounds
     }
     
     // MARK: - Actions

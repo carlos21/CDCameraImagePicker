@@ -249,7 +249,7 @@ class Camera {
     func preferredPresets() -> [String] {
         return [
             AVCaptureSession.Preset.high.rawValue,
-            AVCaptureSession.Preset.high.rawValue,
+            AVCaptureSession.Preset.photo.rawValue,
             AVCaptureSession.Preset.low.rawValue
         ]
     }

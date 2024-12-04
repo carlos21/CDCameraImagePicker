@@ -95,12 +95,6 @@ open class CDCameraImagePickerController: UIViewController {
         return button
     }()
     
-    lazy var volumeView: MPVolumeView = {
-        let view = MPVolumeView()
-        view.frame = CGRect(x: 0, y: 0, width: 1, height: 1)
-        return view
-    }()
-    
     // MARK: - Initialization
     
     @objc public required init(config: Config = Config()) {
@@ -128,8 +122,6 @@ open class CDCameraImagePickerController: UIViewController {
             subview?.translatesAutoresizingMaskIntoConstraints = false
         }
         
-        view.addSubview(volumeView)
-        view.sendSubviewToBack(volumeView)
         view.backgroundColor = UIColor.white
         view.backgroundColor = config.mainColor
         
