@@ -104,6 +104,15 @@ extension CDCameraImagePickerController {
     
     func setupConstraints() {
         let cameraMainView: UIView = cameraView.view
+//        let attributes: [NSLayoutConstraint.Attribute] = [.bottom, .right, .width]
+//        let topViewAttributes: [NSLayoutConstraint.Attribute] = [.left, .top, .width]
+        
+//        for attribute in attributes {
+//            view.addConstraint(NSLayoutConstraint(item: bottomContainer, attribute: attribute,
+//                                                  relatedBy: .equal, toItem: view, attribute: attribute,
+//                                                  multiplier: 1, constant: 0))
+//        }
+        
         bottomContainer.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
         bottomContainer.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor).isActive = true
         bottomContainer.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor).isActive = true
@@ -124,15 +133,18 @@ extension CDCameraImagePickerController {
         showMorePhotosRight.constant = -2
         showMorePhotosRight.isActive = true
         
-        for attribute: NSLayoutConstraint.Attribute in [.left, .width] {
+        for attribute: NSLayoutConstraint.Attribute in [.left, .top, .width] {
             view.addConstraint(NSLayoutConstraint(item: cameraMainView, attribute: attribute,
                                                   relatedBy: .equal, toItem: view, attribute: attribute,
                                                   multiplier: 1, constant: 0))
         }
-        view.addConstraint(NSLayoutConstraint(item: cameraMainView, attribute: .top,
-                                              relatedBy: .equal, toItem: topView, attribute: .bottom,
-                                              multiplier: 1, constant: 0))
-
+        
+//        for attribute in topViewAttributes {
+//            view.addConstraint(NSLayoutConstraint(item: topView, attribute: attribute,
+//                                                  relatedBy: .equal, toItem: self.view, attribute: attribute,
+//                                                  multiplier: 1, constant: 0))
+//        }
+        
         topView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
         topView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor).isActive = true
         topView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor).isActive = true

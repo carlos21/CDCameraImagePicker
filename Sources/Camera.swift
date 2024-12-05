@@ -237,19 +237,16 @@ class Camera {
     // MARK: - Preset
     
     func configurePreset(_ input: AVCaptureDeviceInput) {
-        for asset in preferredPresets() {
-            if input.device.supportsSessionPreset(AVCaptureSession.Preset(rawValue: asset)) &&
-                self.session.canSetSessionPreset(AVCaptureSession.Preset(rawValue: asset)) {
-                self.session.sessionPreset = AVCaptureSession.Preset(rawValue: asset)
-                return
-            }
+        let preset = AVCaptureSession.Preset.photo
+        if input.device.supportsSessionPreset(preset) && self.session.canSetSessionPreset(preset) {
+            self.session.sessionPreset = preset
         }
     }
     
     func preferredPresets() -> [String] {
         return [
-            AVCaptureSession.Preset.high.rawValue,
             AVCaptureSession.Preset.photo.rawValue,
+            AVCaptureSession.Preset.high.rawValue,
             AVCaptureSession.Preset.low.rawValue
         ]
     }
