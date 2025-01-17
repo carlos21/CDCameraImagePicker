@@ -37,7 +37,7 @@ class AssetManager {
                              size: CGSize = CGSize(width: 720, height: 1280),
                              isSynchronous: Bool,
                              shouldPreferLowRes: Bool = false, completion: @escaping (_ image: UIImage?) -> Void) {
-        let imageManager = PHImageManager.default()
+        let imageManager = PHCachingImageManager.default()
         let requestOptions = PHImageRequestOptions()
         requestOptions.deliveryMode = shouldPreferLowRes ? .fastFormat : .highQualityFormat
         requestOptions.isNetworkAccessAllowed = true
@@ -51,102 +51,6 @@ class AssetManager {
                 return
             }
             completion(nil)
-        }
-    }
-    
-    static func resolveAssets(_ assets: [PHAsset], size: CGSize = CGSize(width: 720, height: 1280)) -> [UIImage] {
-        let imageManager = PHImageManager.default()
-        let requestOptions = PHImageRequestOptions()
-        requestOptions.isSynchronous = true
-        
-        var images = [UIImage]()
-        for asset in assets {
-            imageManager.requestImage(for: asset, targetSize: size, contentMode: .aspectFill, options: requestOptions) { image, _ in
-                if let image = image {
-                    images.append(image)
-                }
-            }
-        }
-        return images
-    }
-    
-    static func resolveAssetsHighResolution(_ assets: [PHAsset], size: CGSize = CGSize.zero) -> [UIImage] {
-        
-        // TODO
-//        SVProgressHUD.show()
-        
-        let imageManager = PHImageManager.default()
-        let requestOptions = PHImageRequestOptions()
-        requestOptions.version = .original
-        requestOptions.isNetworkAccessAllowed = true
-        requestOptions.deliveryMode = PHImageRequestOptionsDeliveryMode.highQualityFormat
-        requestOptions.isSynchronous = true
-        
-        var images = [UIImage]()
-        for asset in assets {
-            imageManager.requestImageData(for: asset, options: requestOptions) { (data, string, orientation, info) in
-                if let data = data, let image = UIImage(data: data) {
-                    images.append(image)
-                }
-            }
-        }
-        
-        // TODO
-//        SVProgressHUD.dismiss()
-        
-        return images
-    }
-    
-    static func resolveAssetsHighResolution777(_ assets: [PHAsset], size: CGSize = CGSize.zero) -> [UIImage] {
-        let imageManager = PHImageManager.default()
-        let requestOptions = PHImageRequestOptions()
-        requestOptions.deliveryMode = PHImageRequestOptionsDeliveryMode.highQualityFormat
-        requestOptions.isSynchronous = true
-        var images = [UIImage]()
-        for asset in assets {
-            imageManager.requestImage(for: asset, targetSize: CGSize.zero, contentMode: .default, options: requestOptions) { image, _ in
-                if let image = image {
-                    images.append(image)
-                }
-            }
-        }
-        return images
-    }
-    
-    static func resolveAssets111(_ assets: [PHAsset], size: CGSize = CGSize.zero) -> [UIImage] {
-        let imageManager = PHImageManager.default()
-        let requestOptions = PHImageRequestOptions()
-        requestOptions.isSynchronous = true
-        
-        var images = [UIImage]()
-        for asset in assets {
-            imageManager.requestImage(for: asset, targetSize: size, contentMode: .aspectFill, options: requestOptions) { image, _ in
-                if let image = image {
-                    images.append(image)
-                }
-            }
-        }
-        return images
-    }
-    
-    static func resolveAssets123(_ assets: [PHAsset], size: CGSize = CGSize.zero, completion: @escaping ([UIImage]) -> Void) {
-        let imageManager = PHImageManager.default()
-        let requestOptions = PHImageRequestOptions()
-        requestOptions.isSynchronous = true
-        
-        var images = [UIImage]()
-        let count = assets.count
-        var index = 0
-        for asset in assets {
-            imageManager.requestImage(for: asset, targetSize: size, contentMode: .aspectFill, options: requestOptions) { image, _ in
-                if let image = image {
-                    images.append(image)
-                }
-                index += 1
-                if index == count {
-                    completion(images)
-                }
-            }
         }
     }
 }

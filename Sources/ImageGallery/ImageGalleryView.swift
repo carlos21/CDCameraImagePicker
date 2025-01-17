@@ -238,9 +238,9 @@ extension ImageGalleryView: UICollectionViewDataSource {
             }
             AssetManager.resolveAsset(asset,
                                       size: CGSize(width: 180, height: 180),
-                                      isSynchronous: true,
-                                      shouldPreferLowRes: configuration.useLowResolutionPreviewImage) { [weak self] image in
-                guard let image = image else { return }
+                                      isSynchronous: false,
+                                      shouldPreferLowRes: configuration.useLowResolutionPreviewImage) { [weak self, weak imageCell] image in
+                guard let image, let imageCell else { return }
                 DispatchQueue.main.async {
                     self?.updateCellToDisplay(cell: imageCell, asset: asset, image: image, photo: photo, indexPath: indexPath)
                 }

@@ -174,13 +174,17 @@ class Camera {
     }
     
     func savePhoto(_ image: UIImage, completion: ((String?) -> Void)? = nil) {
-        var localIdentifier: String?
-        try? PHPhotoLibrary.shared().performChangesAndWait {
-            let request = PHAssetChangeRequest.creationRequestForAsset(from: image)
-            request.creationDate = Date()
-            localIdentifier = request.placeholderForCreatedAsset?.localIdentifier
+        DispatchQueue.global(qos: .background).async {
+            var localIdentifier: String?
+            try? PHPhotoLibrary.shared().performChangesAndWait {
+                let request = PHAssetChangeRequest.creationRequestForAsset(from: image)
+                request.creationDate = Date()
+                localIdentifier = request.placeholderForCreatedAsset?.localIdentifier
+            }
+            DispatchQueue.main.async {
+                completion?(localIdentifier)
+            }
         }
-        completion?(localIdentifier)
     }
     
     func flash(_ mode: AVCaptureDevice.FlashMode) {
