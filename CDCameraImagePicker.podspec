@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "CDCameraImagePicker"
-  s.version      = "1.8.21"
+  s.version      = "1.8.22"
   s.summary      = "Photos picker"
   s.description  = "This is a Photos picker"
   s.homepage     = "https://github.com/carlos21/CDCameraImagePicker"
@@ -11,9 +11,6 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/carlos21/CDCameraImagePicker.git", :tag => s.version.to_s }
   s.source_files  = "Sources/**/*.{h,m,swift}"
   s.public_header_files = 'Sources/*.h'
-  s.pod_target_xcconfig = {
-    'SWIFT_OBJC_BRIDGING_HEADER' => '${PODS_TARGET_SRCROOT}/Sources/CDCameraImagePicker-Bridging-Header.h'
-  }
   s.resources  = "Sources/images/*"
   s.frameworks  = "Foundation"
 end
