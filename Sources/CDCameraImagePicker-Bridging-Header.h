@@ -1,4 +1,3 @@
-//
 //  CDCameraImagePicker-Bridging-Header.h
 //  CDCameraImagePicker
 //

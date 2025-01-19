@@ -42,9 +42,9 @@
 		3543A42123295777008B2188 /* UIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3543A42023295777008B2188 /* UIImage.swift */; };
 		3543A42323296C18008B2188 /* HandleRotationProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3543A42223296C18008B2188 /* HandleRotationProtocol.swift */; };
 		3560172C28E0C5D30048EBDD /* UIWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3560172B28E0C5D30048EBDD /* UIWindow.swift */; };
+		35791F852D3D6CBA0018D254 /* CDCameraImagePicker-Bridging-Header.h in Headers */ = {isa = PBXBuildFile; fileRef = 35791F842D3D6CB70018D254 /* CDCameraImagePicker-Bridging-Header.h */; };
 		358F33512D3C7E1A009E1739 /* ExceptionCatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 358F33502D3C7E1A009E1739 /* ExceptionCatcher.h */; };
 		358F33532D3C7E2A009E1739 /* ExceptionCatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 358F33522D3C7E2A009E1739 /* ExceptionCatcher.m */; };
-		358F33562D3C80C0009E1739 /* CDCameraImagePicker-Bridging-Header.h in Headers */ = {isa = PBXBuildFile; fileRef = 358F33552D3C80C0009E1739 /* CDCameraImagePicker-Bridging-Header.h */; };
 		35BE268923862E6D00D69B8E /* PhotoLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35BE268823862E6D00D69B8E /* PhotoLocation.swift */; };
 		35E0ECCA28DE1ABC00EF4E22 /* PhotoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35E0ECC928DE1ABC00EF4E22 /* PhotoData.swift */; };
 		35E0ECCD28DEBBD700EF4E22 /* PHFetchResult+Asset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35E0ECCC28DEBBD700EF4E22 /* PHFetchResult+Asset.swift */; };
@@ -120,9 +120,9 @@
 		3543A42023295777008B2188 /* UIImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImage.swift; sourceTree = "<group>"; };
 		3543A42223296C18008B2188 /* HandleRotationProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandleRotationProtocol.swift; sourceTree = "<group>"; };
 		3560172B28E0C5D30048EBDD /* UIWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIWindow.swift; sourceTree = "<group>"; };
+		35791F842D3D6CB70018D254 /* CDCameraImagePicker-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CDCameraImagePicker-Bridging-Header.h"; sourceTree = "<group>"; };
 		358F33502D3C7E1A009E1739 /* ExceptionCatcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ExceptionCatcher.h; sourceTree = "<group>"; };
 		358F33522D3C7E2A009E1739 /* ExceptionCatcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ExceptionCatcher.m; sourceTree = "<group>"; };
-		358F33552D3C80C0009E1739 /* CDCameraImagePicker-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CDCameraImagePicker-Bridging-Header.h"; sourceTree = "<group>"; };
 		35BE268823862E6D00D69B8E /* PhotoLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLocation.swift; sourceTree = "<group>"; };
 		35E0ECC928DE1ABC00EF4E22 /* PhotoData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoData.swift; sourceTree = "<group>"; };
 		35E0ECCC28DEBBD700EF4E22 /* PHFetchResult+Asset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PHFetchResult+Asset.swift"; sourceTree = "<group>"; };
@@ -254,6 +254,7 @@
 		8933C7811EB5B7E0000D00A4 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				35791F842D3D6CB70018D254 /* CDCameraImagePicker-Bridging-Header.h */,
 				358F33522D3C7E2A009E1739 /* ExceptionCatcher.m */,
 				358F33502D3C7E1A009E1739 /* ExceptionCatcher.h */,
 				35E0ECCB28DEBBC800EF4E22 /* Extensions */,
@@ -273,7 +274,6 @@
 				35BE268823862E6D00D69B8E /* PhotoLocation.swift */,
 				3504555D23CD318300F5B56D /* UIDevice.swift */,
 				35E0ECC928DE1ABC00EF4E22 /* PhotoData.swift */,
-				358F33552D3C80C0009E1739 /* CDCameraImagePicker-Bridging-Header.h */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -311,7 +311,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				358F33512D3C7E1A009E1739 /* ExceptionCatcher.h in Headers */,
-				358F33562D3C80C0009E1739 /* CDCameraImagePicker-Bridging-Header.h in Headers */,
+				35791F852D3D6CBA0018D254 /* CDCameraImagePicker-Bridging-Header.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
