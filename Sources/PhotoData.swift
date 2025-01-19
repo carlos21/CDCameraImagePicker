@@ -10,12 +10,7 @@ import UIKit
 import Photos
 
 public class PhotoData: Equatable {
-    public var asset: PHAsset? {
-        didSet {
-            guard let asset else { return }
-            localIdentifier = asset.localIdentifier
-        }
-    }
+    public var asset: PHAsset?
     public var image: UIImage? {
         didSet {
             guard let originalImage = image else {
@@ -43,12 +38,13 @@ public class PhotoData: Equatable {
         }
     }
     public var smallImage: UIImage?
-    public var localIdentifier: String
     public let tempIdentifier: String
+    public var localIdentifier: String {
+        asset?.localIdentifier ?? tempIdentifier
+    }
     
     init() {
         self.tempIdentifier = UUID().uuidString
-        self.localIdentifier = tempIdentifier
     }
     
     public static func == (lhs: PhotoData, rhs: PhotoData) -> Bool {

@@ -127,7 +127,7 @@ open class ImageGalleryView: UIView {
     func fetchPhotos(fetchResult: PHFetchResult<PHAsset>? = nil, _ completion: (() -> Void)? = nil) {
         guard PHPhotoLibrary.authorizationStatus() == .authorized else { return }
         
-        if let fetchResult = fetchResult {
+        if let fetchResult {
             updatePhotosData(with: fetchResult)
             completion?()
             return
@@ -272,7 +272,7 @@ extension ImageGalleryView: UICollectionViewDataSource {
                                       shouldPreferLowRes: configuration.useLowResolutionPreviewImage) { [weak self, weak imageCell, weak photo] image in
                 guard let image, let imageCell, let photo else { return }
                 DispatchQueue.main.async {
-                    photo.image = image
+                    photo.smallImage = image
                     self?.updateCellToDisplay(cell: imageCell, image: image, photo: photo, indexPath: indexPath)
                 }
             }

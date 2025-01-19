@@ -163,7 +163,7 @@ class Camera {
     func takePhoto(_ previewLayer: AVCaptureVideoPreviewLayer,
                    orientation: UIInterfaceOrientation,
                    onPhotoTaken: @escaping (UIImage?) -> Void,
-                   onPhotoSaved: @escaping (String?) -> Void) {
+                   onPhotoSaved: @escaping (PHAsset?) -> Void) {
         cameraOutput.takePhoto(previewLayer: previewLayer, orientation: orientation) { [weak self] image in
             guard let image else {
                 os_log(">>> There is no image", log: OSLog.default, type: .error)
@@ -178,16 +178,26 @@ class Camera {
         }
     }
     
-    func savePhoto(_ image: UIImage, completion: ((String?) -> Void)? = nil) {
+    func savePhoto(_ image: UIImage, completion: ((PHAsset?) -> Void)? = nil) {
         DispatchQueue.global(qos: .background).async {
             var localIdentifier: String?
+            
+            // Perform the photo library changes
             try? PHPhotoLibrary.shared().performChangesAndWait {
                 let request = PHAssetChangeRequest.creationRequestForAsset(from: image)
                 request.creationDate = Date()
                 localIdentifier = request.placeholderForCreatedAsset?.localIdentifier
             }
+            
+            // If we have a local identifier, fetch the PHAsset
+            var savedAsset: PHAsset?
+            if let localIdentifier = localIdentifier {
+                let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [localIdentifier], options: nil)
+                savedAsset = fetchResult.firstObject
+            }
+            
             DispatchQueue.main.async {
-                completion?(localIdentifier)
+                completion?(savedAsset)
             }
         }
     }

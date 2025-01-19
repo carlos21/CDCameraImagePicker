@@ -425,9 +425,6 @@ extension CDCameraImagePickerController: BottomContainerViewDelegate {
     }
     
     func doneButtonDidPress() {
-        // The user clicked on Finish too soon, hence the localIdentifier is not ready yet.
-        // In this case, just use the tempIdentifier
-        stack.photos.forEach { $0.localIdentifier = $0.tempIdentifier }
         delegate?.imagePickerDoneDidPress(self, photos: stack.photos)
     }
     

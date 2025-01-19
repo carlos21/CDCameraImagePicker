@@ -200,9 +200,8 @@ class CameraView: UIViewController {
                 photo.image = image
                 completion(photo)
             },
-            onPhotoSaved: { localIdentifier in
-                guard let localIdentifier else { return }
-                photo.localIdentifier = localIdentifier
+            onPhotoSaved: { asset in
+                photo.asset = asset
             }
         )
     }
