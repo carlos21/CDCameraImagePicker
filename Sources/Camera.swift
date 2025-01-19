@@ -162,14 +162,19 @@ class Camera {
     
     func takePhoto(_ previewLayer: AVCaptureVideoPreviewLayer,
                    orientation: UIInterfaceOrientation,
-                   completion: ((String?) -> Void)? = nil) {
+                   onPhotoTaken: @escaping (UIImage?) -> Void,
+                   onPhotoSaved: @escaping (String?) -> Void) {
         cameraOutput.takePhoto(previewLayer: previewLayer, orientation: orientation) { [weak self] image in
-            guard let image = image else {
+            guard let image else {
                 os_log(">>> There is no image", log: OSLog.default, type: .error)
-                completion?(nil)
+                DispatchQueue.main.async {
+                    onPhotoTaken(nil)
+                    onPhotoSaved(nil)
+                }
                 return
             }
-            self?.savePhoto(image, completion: completion)
+            onPhotoTaken(image)
+            self?.savePhoto(image, completion: onPhotoSaved)
         }
     }
     

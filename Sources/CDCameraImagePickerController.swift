@@ -131,10 +131,6 @@ open class CDCameraImagePickerController: UIViewController {
         if var delegate = UIApplication.shared.delegate as? HandleRotationProtocol {
             delegate.restrictRotation = .portrait
         }
-        
-        if #available(iOS 14.0, *) {
-            PHPhotoLibrary.shared().register(self)
-        }
     }
     
     open override func viewWillAppear(_ animated: Bool) {
@@ -192,8 +188,6 @@ open class CDCameraImagePickerController: UIViewController {
         notificationCenter.removeObserver(self, name: .AVCaptureSessionRuntimeError, object: nil)
         notificationCenter.removeObserver(self, name: .AVCaptureSessionWasInterrupted, object: nil)
         notificationCenter.removeObserver(self, name: .AVCaptureSessionDidStopRunning, object: nil)
-        
-        timer.invalidate()
     }
     
     func updateOrientation() {
@@ -276,7 +270,6 @@ open class CDCameraImagePickerController: UIViewController {
         }
         
         NotificationCenter.default.removeObserver(self)
-        PHPhotoLibrary.shared().unregisterChangeObserver(self)
         
         print(">>> deinit CDCameraImagePickerController")
     }
@@ -410,53 +403,31 @@ open class CDCameraImagePickerController: UIViewController {
             }
         }
     }
-    
-    func takePicture() {
-        guard !isTakingPicture else { return }
-        isTakingPicture = true
-        bottomContainer.stackView.startLoader()
-        cameraView.takePicture { [weak self] localIdentifier in
-            DispatchQueue.main.async {
-                self?.isTakingPicture = false
-                self?.bottomContainer.stackView.stopLoader()
-                
-                guard let localIdentifier = localIdentifier else {
-                    self?.bottomContainer.pickerButton.isEnabled = true
-                    os_log(">>> No localIdentifier. This means something happened when saving the photo.", log: OSLog.default, type: .error)
-                    return
-                }
-                self?.stack.register(localIdentifier: localIdentifier)
-            }
-        }
-    }
-    
-    var timer = Timer()
-    var count = 0
-    let maxCount = 3000
-    
-    public func takePictureEvery(seconds: TimeInterval) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
-            guard let self else { return }
-            self.timer = Timer.scheduledTimer(withTimeInterval: seconds, repeats: true, block: { _ in
-                self.takePicture()
-                self.count += 1
-                
-                if self.count >= self.maxCount {
-                    self.timer.invalidate()
-                }
-            })
-        }
-    }
 }
 
 extension CDCameraImagePickerController: BottomContainerViewDelegate {
     
     func pickerButtonDidPress() {
         bottomContainer.pickerButton.isEnabled = false
-        takePicture()
+        
+        guard !isTakingPicture else { return }
+        isTakingPicture = true
+        bottomContainer.stackView.startLoader()
+        cameraView.takePicture { [weak self] photoData in
+            DispatchQueue.main.async {
+                self?.isTakingPicture = false
+                self?.bottomContainer.stackView.stopLoader()
+                self?.stack.register(tempIdentifier: photoData.tempIdentifier)
+                self?.galleryView.add(photoData: photoData)
+                self?.bottomContainer.pickerButton.isEnabled = true
+            }
+        }
     }
     
     func doneButtonDidPress() {
+        // The user clicked on Finish too soon, hence the localIdentifier is not ready yet.
+        // In this case, just use the tempIdentifier
+        stack.photos.forEach { $0.localIdentifier = $0.tempIdentifier }
         delegate?.imagePickerDoneDidPress(self, photos: stack.photos)
     }
     
@@ -530,24 +501,6 @@ extension CDCameraImagePickerController: CameraViewDelegate {
             
             self.topView.flashButton.transform = rotate.concatenating(translate)
         })
-    }
-}
-
-extension CDCameraImagePickerController: PHPhotoLibraryChangeObserver {
-    
-    public func photoLibraryDidChange(_ changeInstance: PHChange) {
-        guard let fetchResult = galleryView.fetchResult,
-              let changesResult = changeInstance.changeDetails(for: fetchResult) else {
-            return
-        }
-        
-        self.galleryView.fetchPhotos(fetchResult: changesResult.fetchResultAfterChanges) { [weak self] in
-            DispatchQueue.main.async {
-                if changesResult.hasIncrementalChanges {
-                    self?.bottomContainer.pickerButton.isEnabled = true
-                }
-            }
-        }
     }
 }
 

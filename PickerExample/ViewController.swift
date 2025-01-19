@@ -33,7 +33,6 @@ class ViewController: UIViewController {
         let imagePicker = CDCameraImagePickerController(config: config)
         imagePicker.delegate = self
         imagePicker.modalPresentationStyle = .fullScreen
-//        imagePicker.takePictureEvery(seconds: 0.05)
         present(imagePicker, animated: true, completion: nil)
     }
 }

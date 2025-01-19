@@ -181,8 +181,8 @@ class CameraView: UIViewController {
         camera.flash(mapping[title] ?? .auto)
     }
     
-    func takePicture(_ completion: @escaping (String?) -> Void) {
-        guard let previewLayer = previewLayer else { return }
+    func takePicture(_ completion: @escaping (PhotoData) -> Void) {
+        guard let previewLayer else { return }
         
         UIView.animate(withDuration: 0.1, animations: { [weak self] in
             self?.capturedImageView.alpha = 1
@@ -192,10 +192,19 @@ class CameraView: UIViewController {
             })
         })
         
-        camera.takePhoto(previewLayer, orientation: self.currentOrientation) { [weak self] localIdentifier in
-            self?.delegate?.imageToLibrary()
-            completion(localIdentifier)
-        }
+        let photo = PhotoData()
+        camera.takePhoto(
+            previewLayer,
+            orientation: self.currentOrientation,
+            onPhotoTaken: { image in
+                photo.image = image
+                completion(photo)
+            },
+            onPhotoSaved: { localIdentifier in
+                guard let localIdentifier else { return }
+                photo.localIdentifier = localIdentifier
+            }
+        )
     }
     
     // MARK: - Timer methods

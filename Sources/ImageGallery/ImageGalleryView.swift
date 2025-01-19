@@ -54,8 +54,7 @@ open class ImageGalleryView: UIView {
         didSet {
             photosDictionary.removeAll()
             photos.forEach {
-                guard let localIdentifier = $0.localIdentifier else { return }
-                photosDictionary[localIdentifier] = $0
+                photosDictionary[$0.localIdentifier] = $0
             }
         }
     }
@@ -147,13 +146,14 @@ open class ImageGalleryView: UIView {
         self.fetchResult = newFetchResult
         
         DispatchQueue.main.async {
-            // use cached image so it's not needed to retrieve it again
             var newPhotos = [PhotoData]()
             newFetchResult.assets.forEach { asset in
                 if let photoData = self.photosDictionary[asset.localIdentifier] {
-                    newPhotos.append(.asset(asset, photoData.cachedImage))
+                    newPhotos.append(photoData)
                 } else {
-                    newPhotos.append(.asset(asset, nil))
+                    let photoData = PhotoData()
+                    photoData.asset = asset
+                    newPhotos.append(photoData)
                 }
             }
             self.photos = newPhotos
@@ -166,6 +166,39 @@ open class ImageGalleryView: UIView {
             self.statusLabel.text = self.photos.isEmpty ? self.configuration.noImagesTitle : ""
             self.collectionView.alpha = self.photos.isEmpty ? 0 : 1
             self.selectedStack.resetToAvailableAssets(self.photos)
+        }
+    }
+    
+    func add(photoData: PhotoData) {
+        photos.insert(photoData, at: 0)
+        let firstIndexPath = IndexPath(item: 0, section: 0)
+        
+        do {
+            try ExceptionCatcher.try {
+                self.collectionView.performBatchUpdates({ [ weak self] in
+                    self?.collectionView.insertItems(at: [firstIndexPath])
+                }, completion: { [weak self] finished in
+                    guard let self else { return }
+                    
+                    if finished, let cell = collectionView.cellForItem(at: firstIndexPath) as? ImageGalleryViewCell {
+                        let photo = photos[firstIndexPath.item]
+                        updateSelectedCell(cell: cell, photo: photo)
+                    } else {
+                        selectedStack.pushAsset(photoData)
+                    }
+                })
+            }
+        } catch {
+            self.collectionView.reloadData()
+            
+            DispatchQueue.main.async {
+                if let cell = self.collectionView.cellForItem(at: firstIndexPath) as? ImageGalleryViewCell {
+                    let photo = self.photos[firstIndexPath.item]
+                    self.updateSelectedCell(cell: cell, photo: photo)
+                } else {
+                    self.selectedStack.pushAsset(photoData)
+                }
+            }
         }
     }
 }
@@ -229,34 +262,27 @@ extension ImageGalleryView: UICollectionViewDataSource {
                                forItemAt indexPath: IndexPath) {
         guard let imageCell = cell as? ImageGalleryViewCell else { return }
         guard let photo = photos[safe: indexPath.row] else { return }
-        
-        switch photo {
-        case .asset(let asset, let cachedImage):
-            if let cachedImage = cachedImage {
-                updateCellToDisplay(cell: imageCell, asset: asset, image: cachedImage, photo: photo, indexPath: indexPath)
-                return
-            }
+        if let smallImage = photo.smallImage {
+            updateCellToDisplay(cell: imageCell, image: smallImage, photo: photo, indexPath: indexPath)
+        } else {
+            guard let asset = photo.asset else { return }
             AssetManager.resolveAsset(asset,
                                       size: CGSize(width: 180, height: 180),
                                       isSynchronous: false,
-                                      shouldPreferLowRes: configuration.useLowResolutionPreviewImage) { [weak self, weak imageCell] image in
-                guard let image, let imageCell else { return }
+                                      shouldPreferLowRes: configuration.useLowResolutionPreviewImage) { [weak self, weak imageCell, weak photo] image in
+                guard let image, let imageCell, let photo else { return }
                 DispatchQueue.main.async {
-                    self?.updateCellToDisplay(cell: imageCell, asset: asset, image: image, photo: photo, indexPath: indexPath)
+                    photo.image = image
+                    self?.updateCellToDisplay(cell: imageCell, image: image, photo: photo, indexPath: indexPath)
                 }
             }
-        case .image:
-            break
         }
     }
     
     private func updateCellToDisplay(cell: ImageGalleryViewCell,
-                                     asset: PHAsset,
                                      image: UIImage,
                                      photo: PhotoData,
                                      indexPath: IndexPath) {
-        guard photos[safe: indexPath.row] != nil else { return }
-        photos[indexPath.row] = .asset(asset, image)
         cell.configureCell(image)
         
         if selectedStack.containsAsset(photo) {

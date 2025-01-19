@@ -5,13 +5,13 @@ class ImageStack {
     private(set) var photos = [PhotoData]()
     
     private var photosDictionary = [String: PhotoData]()
-    private(set) var localIdentifiersDictionary = [String: Bool]()
+    private(set) var tempIdentifiersDictionary = [String: Bool]()
     
     fileprivate let imageKey = "image"
     
     open func pushAsset(_ photo: PhotoData) {
         photos.append(photo)
-        photosDictionary[photo.localIdentifier!] = photo
+        photosDictionary[photo.tempIdentifier] = photo
         
         let name = Notification.Name(rawValue: Notifications.imageDidPush)
         NotificationCenter.default.post(name: name, object: self, userInfo: [imageKey: photo])
@@ -19,7 +19,7 @@ class ImageStack {
     
     open func dropAsset(_ photo: PhotoData) {
         photos = photos.filter { $0 != photo }
-        photosDictionary[photo.localIdentifier!] = nil
+        photosDictionary[photo.tempIdentifier] = nil
         
         let name = Notification.Name(rawValue: Notifications.imageDidDrop)
         NotificationCenter.default.post(name: name, object: self, userInfo: [imageKey: photo])
@@ -51,14 +51,9 @@ class ImageStack {
         // push asset based on the last local identifier
         // this is means it was added from outside
         allPhotos.forEach { photo in
-            switch photo {
-            case .asset(let asset, _):
-                if let value = localIdentifiersDictionary[asset.localIdentifier], !value {
-                    localIdentifiersDictionary[asset.localIdentifier] = true
-                    pushAsset(.asset(asset, nil))
-                }
-            case .image:
-                break
+            if let value = tempIdentifiersDictionary[photo.tempIdentifier], !value {
+                tempIdentifiersDictionary[photo.tempIdentifier] = true
+                pushAsset(photo)
             }
         }
 //        print("After:")
@@ -73,20 +68,18 @@ class ImageStack {
     }
     
     open func containsAsset(_ photo: PhotoData) -> Bool {
-        guard let localIdentifier = photo.localIdentifier else { return false }
-        return photosDictionary[localIdentifier] != nil
+        return photosDictionary[photo.tempIdentifier] != nil
     }
     
     private func resetPhotosDictionary() {
         photosDictionary.removeAll()
         photos.forEach {
-            guard let localIdentifier = $0.localIdentifier else { return }
-            photosDictionary[localIdentifier] = $0
+            photosDictionary[$0.tempIdentifier] = $0
         }
     }
     
-    func register(localIdentifier: String) {
-        localIdentifiersDictionary[localIdentifier] = false
+    func register(tempIdentifier: String) {
+        tempIdentifiersDictionary[tempIdentifier] = false
     }
 }
 
