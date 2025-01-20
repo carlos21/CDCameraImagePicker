@@ -162,6 +162,7 @@ class Camera {
     
     func takePhoto(_ previewLayer: AVCaptureVideoPreviewLayer,
                    orientation: UIInterfaceOrientation,
+                   onLocalIdentifierAvailable: @escaping (String) -> Void,
                    onPhotoTaken: @escaping (UIImage?) -> Void,
                    onPhotoSaved: @escaping (PHAsset?) -> Void) {
         cameraOutput.takePhoto(previewLayer: previewLayer, orientation: orientation) { [weak self] image in
@@ -174,31 +175,32 @@ class Camera {
                 return
             }
             onPhotoTaken(image)
-            self?.savePhoto(image, completion: onPhotoSaved)
+            self?.savePhoto(image, onLocalIdentifierAvailable: onLocalIdentifierAvailable, completion: onPhotoSaved)
         }
     }
     
-    func savePhoto(_ image: UIImage, completion: ((PHAsset?) -> Void)? = nil) {
+    func savePhoto(_ image: UIImage, onLocalIdentifierAvailable: @escaping (String) -> Void, completion: ((PHAsset?) -> Void)? = nil) {
         DispatchQueue.global(qos: .background).async {
             var localIdentifier: String?
             
             // Perform the photo library changes
-            try? PHPhotoLibrary.shared().performChangesAndWait {
+            PHPhotoLibrary.shared().performChanges({
                 let request = PHAssetChangeRequest.creationRequestForAsset(from: image)
                 request.creationDate = Date()
-                localIdentifier = request.placeholderForCreatedAsset?.localIdentifier
-            }
-            
-            // If we have a local identifier, fetch the PHAsset
-            var savedAsset: PHAsset?
-            if let localIdentifier = localIdentifier {
-                let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [localIdentifier], options: nil)
-                savedAsset = fetchResult.firstObject
-            }
-            
-            DispatchQueue.main.async {
-                completion?(savedAsset)
-            }
+                if let localIdentifier = request.placeholderForCreatedAsset?.localIdentifier {
+                    onLocalIdentifierAvailable(localIdentifier)
+                }
+            }, completionHandler: { success, error in
+                // If we have a local identifier, fetch the PHAsset
+                var savedAsset: PHAsset?
+                if let localIdentifier = localIdentifier, success {
+                    let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [localIdentifier], options: nil)
+                    savedAsset = fetchResult.firstObject
+                }
+                DispatchQueue.main.async {
+                    completion?(savedAsset)
+                }
+            })
         }
     }
     

@@ -30,6 +30,8 @@ class CameraView: UIViewController {
     
     var currentOrientation: UIInterfaceOrientation = .portrait
     
+    var myInsertedIdentifiers = Set<String>()
+    
     // MARKL - UI Elements
 
     lazy var blurView: UIVisualEffectView = {
@@ -196,6 +198,9 @@ class CameraView: UIViewController {
         camera.takePhoto(
             previewLayer,
             orientation: self.currentOrientation,
+            onLocalIdentifierAvailable: { [weak self] localIdentifier in
+                self?.myInsertedIdentifiers.insert(localIdentifier)
+            },
             onPhotoTaken: { image in
                 photo.image = image
                 completion(photo)

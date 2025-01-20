@@ -308,7 +308,16 @@ open class CDCameraImagePickerController: UIViewController {
     }
     
     @objc func showMorePhotosPressed() {
-        PHPhotoLibrary.shared().presentLimitedLibraryPicker(from: self)
+        if #available(iOS 15, *) {
+            PHPhotoLibrary.shared().presentLimitedLibraryPicker(from: self) { _ in
+                DispatchQueue.main.async { [weak self] in
+                    self?.bottomContainer.pickerButton.isEnabled = false
+                    self?.galleryView.fetchPhotos() {
+                        self?.bottomContainer.pickerButton.isEnabled = true
+                    }
+                }
+            }
+        }
     }
     
     @objc func adjustButtonTitle(_ notification: Notification) {

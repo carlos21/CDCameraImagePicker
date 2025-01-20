@@ -127,11 +127,6 @@ open class ImageGalleryView: UIView {
     func fetchPhotos(fetchResult: PHFetchResult<PHAsset>? = nil, _ completion: (() -> Void)? = nil) {
         guard PHPhotoLibrary.authorizationStatus() == .authorized else { return }
         
-        if let fetchResult {
-            updatePhotosData(with: fetchResult)
-            completion?()
-            return
-        }
         DispatchQueue.main.async {
             self.statusLabel.text = "Loading..."
             self.collectionView.alpha = 0
@@ -166,6 +161,7 @@ open class ImageGalleryView: UIView {
             self.statusLabel.text = self.photos.isEmpty ? self.configuration.noImagesTitle : ""
             self.collectionView.alpha = self.photos.isEmpty ? 0 : 1
             self.selectedStack.resetToAvailableAssets(self.photos)
+            self.collectionView.reloadData()
         }
     }
     
