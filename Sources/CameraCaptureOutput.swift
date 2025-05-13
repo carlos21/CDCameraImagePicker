@@ -81,59 +81,16 @@ extension CameraCaptureOutput: AVCapturePhotoCaptureDelegate {
             return
         }
         let transformedimage = image.transformedImage(interfaceOrientation: self.orientation ?? UIDevice.current.orientation.interfaceOrientation)
-        takePhotoCompletion?(transformedimage.correctImageOrientation())
+        takePhotoCompletion?(transformedimage.normalized())
     }
 }
 
 extension UIImage {
-    func correctImageOrientation() -> UIImage {
-        if self.imageOrientation == .up {
-            return self
-        }
-        UIGraphicsBeginImageContextWithOptions(self.size, false, self.scale)
-        self.draw(in: CGRect(origin: .zero, size: self.size))
-        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()!
+    func normalized() -> UIImage {
+        UIGraphicsBeginImageContextWithOptions(size, false, scale)
+        draw(in: CGRect(origin: .zero, size: size))
+        let img = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
-        return normalizedImage
+        return img
     }
 }
-
-//extension AVCaptureVideoOrientation {
-//
-//    var text: String {
-//        switch self {
-//        case .landscapeLeft:
-//            return "landscape"
-//        case .landscapeRight:
-//            return "landscapeRight"
-//        case .portrait:
-//            return "portrait"
-//        case .portraitUpsideDown:
-//            return "portraitUpsideDown"
-//        }
-//    }
-//}
-//
-//extension UIImage {
-//
-//    var imageOrientationText: String {
-//        switch imageOrientation {
-//        case .down:
-//            return "down"
-//        case .downMirrored:
-//            return "downMirrored"
-//        case .left:
-//            return "left"
-//        case .leftMirrored:
-//            return "leftMirrored"
-//        case .right:
-//            return "right"
-//        case .rightMirrored:
-//            return "rightMirrored"
-//        case .up:
-//            return "up"
-//        case .upMirrored:
-//            return "upMirrored"
-//        }
-//    }
-//}
