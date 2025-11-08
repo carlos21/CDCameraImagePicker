@@ -50,7 +50,6 @@
 		35E0ECCD28DEBBD700EF4E22 /* PHFetchResult+Asset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35E0ECCC28DEBBD700EF4E22 /* PHFetchResult+Asset.swift */; };
 		35EB04522D3DEF10002EBBF7 /* PhotosUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35EB04512D3DEF10002EBBF7 /* PhotosUI.framework */; };
 		52D6D9871BEFF229002C0205 /* CDCameraImagePicker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52D6D97C1BEFF229002C0205 /* CDCameraImagePicker.framework */; };
-		8933C7851EB5B820000D00A4 /* CDCameraImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8933C7841EB5B820000D00A4 /* CDCameraImagePicker.swift */; };
 		8933C7901EB5B82D000D00A4 /* CDCameraImagePickerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8933C7891EB5B82A000D00A4 /* CDCameraImagePickerTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -130,7 +129,6 @@
 		35EB04512D3DEF10002EBBF7 /* PhotosUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PhotosUI.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/System/iOSSupport/System/Library/Frameworks/PhotosUI.framework; sourceTree = DEVELOPER_DIR; };
 		52D6D97C1BEFF229002C0205 /* CDCameraImagePicker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CDCameraImagePicker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		52D6D9861BEFF229002C0205 /* CDCameraImagePicker-iOS Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "CDCameraImagePicker-iOS Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		8933C7841EB5B820000D00A4 /* CDCameraImagePicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CDCameraImagePicker.swift; sourceTree = "<group>"; };
 		8933C7891EB5B82A000D00A4 /* CDCameraImagePickerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CDCameraImagePickerTests.swift; sourceTree = "<group>"; };
 		AD2FAA261CD0B6D800659CF4 /* CDCameraImagePicker.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = CDCameraImagePicker.plist; sourceTree = "<group>"; };
 		AD2FAA281CD0B6E100659CF4 /* CDCameraImagePickerTests.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = CDCameraImagePickerTests.plist; sourceTree = "<group>"; };
@@ -279,7 +277,6 @@
 				35434AAC23282C67000AB511 /* Helper.swift */,
 				35434AAA23282BF3000AB511 /* Camera.swift */,
 				35434A88232805CB000AB511 /* CDCameraImagePickerController.swift */,
-				8933C7841EB5B820000D00A4 /* CDCameraImagePicker.swift */,
 				35434AB0232842F8000AB511 /* CameraCaptureOutput.swift */,
 				3543A42023295777008B2188 /* UIImage.swift */,
 				3543A42223296C18008B2188 /* HandleRotationProtocol.swift */,
@@ -486,7 +483,6 @@
 				35434A97232805CC000AB511 /* Config.swift in Sources */,
 				3504555E23CD318300F5B56D /* UIDevice.swift in Sources */,
 				3543A42323296C18008B2188 /* HandleRotationProtocol.swift in Sources */,
-				8933C7851EB5B820000D00A4 /* CDCameraImagePicker.swift in Sources */,
 				35434A9C232805CC000AB511 /* BottomContainerView.swift in Sources */,
 				35434AAF23282C7E000AB511 /* TopView.swift in Sources */,
 				35434AB1232842F8000AB511 /* CameraCaptureOutput.swift in Sources */,

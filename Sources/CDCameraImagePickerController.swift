@@ -426,9 +426,12 @@ extension CDCameraImagePickerController: BottomContainerViewDelegate {
             DispatchQueue.main.async {
                 self?.isTakingPicture = false
                 self?.bottomContainer.stackView.stopLoader()
-                self?.stack.register(tempIdentifier: photoData.tempIdentifier)
-                self?.galleryView.add(photoData: photoData)
                 self?.bottomContainer.pickerButton.isEnabled = true
+                
+                if let photoData {
+                    self?.stack.register(tempIdentifier: photoData.tempIdentifier)
+                    self?.galleryView.add(photoData: photoData)
+                }
             }
         }
     }

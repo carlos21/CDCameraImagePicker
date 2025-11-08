@@ -13,7 +13,7 @@ import OSLog
 
 class CameraCaptureOutput: NSObject {
     
-    typealias TakePhotoHandler = (UIImage?) -> Void
+    typealias TakePhotoHandler = (Data?) -> Void
     
     // MARK: - Properties
     
@@ -63,20 +63,6 @@ class CameraCaptureOutput: NSObject {
         photoOutputConnection.videoOrientation = videoPreviewLayerOrientation
         output.capturePhoto(with: settings, delegate: self)
     }
-
-    private func downsampleJPEG(_ data: Data, maxDimension: CGFloat) -> UIImage? {
-        let opts: [CFString: Any] = [
-            kCGImageSourceShouldCache: false,
-            kCGImageSourceCreateThumbnailFromImageAlways: true,
-            kCGImageSourceThumbnailMaxPixelSize: Int(maxDimension),
-            kCGImageSourceCreateThumbnailWithTransform: true
-        ]
-        guard
-            let src = CGImageSourceCreateWithData(data as CFData, nil),
-            let cg = CGImageSourceCreateThumbnailAtIndex(src, 0, opts as CFDictionary)
-        else { return nil }
-        return UIImage(cgImage: cg)
-    }
 }
 
 extension CameraCaptureOutput: AVCapturePhotoCaptureDelegate {
@@ -87,13 +73,7 @@ extension CameraCaptureOutput: AVCapturePhotoCaptureDelegate {
             assertionFailure("fileDataRepresentation() failed!!")
             return
         }
-        // UI preview is small; no rotate/normalize needed (ImageIO applies EXIF transform)
-        guard let preview = downsampleJPEG(imageData, maxDimension: 1600) ?? UIImage(data: imageData) else {
-            return
-        }
-
-        let transformedimage = preview.transformedImage(interfaceOrientation: self.orientation ?? UIDevice.current.orientation.interfaceOrientation)
-        takePhotoCompletion?(transformedimage.normalized())
+        takePhotoCompletion?(imageData)
     }
 }
 

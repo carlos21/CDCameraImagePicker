@@ -183,7 +183,7 @@ class CameraView: UIViewController {
         camera.flash(mapping[title] ?? .auto)
     }
     
-    func takePicture(_ completion: @escaping (PhotoData) -> Void) {
+    func takePicture(_ completion: @escaping (PhotoData?) -> Void) {
         guard let previewLayer else { return }
         
         UIView.animate(withDuration: 0.1, animations: { [weak self] in
@@ -194,21 +194,19 @@ class CameraView: UIViewController {
             })
         })
         
-        let photo = PhotoData()
         camera.takePhoto(
             previewLayer,
             orientation: self.currentOrientation,
             onLocalIdentifierAvailable: { [weak self] localIdentifier in
                 self?.myInsertedIdentifiers.insert(localIdentifier)
             },
-            onPhotoTaken: { image in
-                if let image {
-                    photo.setOriginalImageAndBuildThumbnail(image)
-                }
-                completion(photo)
-            },
             onPhotoSaved: { asset in
-                photo.asset = asset
+                guard let asset else {
+                    assertionFailure("asset is missing")
+                    completion(nil)
+                    return
+                }
+                completion(PhotoData(asset: asset))
             }
         )
     }

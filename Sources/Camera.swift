@@ -163,43 +163,39 @@ class Camera {
     func takePhoto(_ previewLayer: AVCaptureVideoPreviewLayer,
                    orientation: UIInterfaceOrientation,
                    onLocalIdentifierAvailable: @escaping (String) -> Void,
-                   onPhotoTaken: @escaping (UIImage?) -> Void,
                    onPhotoSaved: @escaping (PHAsset?) -> Void) {
-        cameraOutput.takePhoto(previewLayer: previewLayer, orientation: orientation) { [weak self] image in
-            guard let image else {
-                os_log(">>> There is no image", log: OSLog.default, type: .error)
+        cameraOutput.takePhoto(previewLayer: previewLayer, orientation: orientation) { [weak self] data in
+            guard let data else {
                 DispatchQueue.main.async {
-                    onPhotoTaken(nil)
                     onPhotoSaved(nil)
                 }
                 return
             }
-            onPhotoTaken(image)
-            self?.savePhoto(image, onLocalIdentifierAvailable: onLocalIdentifierAvailable, completion: onPhotoSaved)
+            self?.savePhotoData(data, onLocalIdentifierAvailable: onLocalIdentifierAvailable, completion: onPhotoSaved)
         }
     }
     
-    func savePhoto(_ image: UIImage, onLocalIdentifierAvailable: @escaping (String) -> Void, completion: ((PHAsset?) -> Void)? = nil) {
+    func savePhotoData(_ data: Data,
+                       onLocalIdentifierAvailable: @escaping (String) -> Void,
+                       completion: ((PHAsset?) -> Void)? = nil) {
         DispatchQueue.global(qos: .background).async {
             var localIdentifier: String?
-            
-            // Perform the photo library changes
+
             PHPhotoLibrary.shared().performChanges({
-                let request = PHAssetChangeRequest.creationRequestForAsset(from: image)
-                request.creationDate = Date()
-                if let localIdentifier = request.placeholderForCreatedAsset?.localIdentifier {
-                    onLocalIdentifierAvailable(localIdentifier)
+                let req = PHAssetCreationRequest.forAsset()
+                req.addResource(with: .photo, data: data, options: nil)
+                req.creationDate = Date()
+                localIdentifier = req.placeholderForCreatedAsset?.localIdentifier
+                if let id = localIdentifier {
+                    DispatchQueue.main.async { onLocalIdentifierAvailable(id) }
                 }
-            }, completionHandler: { success, error in
-                // If we have a local identifier, fetch the PHAsset
-                var savedAsset: PHAsset?
-                if let localIdentifier = localIdentifier, success {
-                    let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [localIdentifier], options: nil)
-                    savedAsset = fetchResult.firstObject
+            }, completionHandler: { success, _ in
+                var saved: PHAsset?
+                if success, let id = localIdentifier {
+                    let r = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: nil)
+                    saved = r.firstObject
                 }
-                DispatchQueue.main.async {
-                    completion?(savedAsset)
-                }
+                DispatchQueue.main.async { completion?(saved) }
             })
         }
     }

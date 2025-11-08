@@ -146,8 +146,7 @@ open class ImageGalleryView: UIView {
                 if let photoData = self.photosDictionary[asset.localIdentifier] {
                     newPhotos.append(photoData)
                 } else {
-                    let photoData = PhotoData()
-                    photoData.asset = asset
+                    let photoData = PhotoData(asset: asset)
                     newPhotos.append(photoData)
                 }
             }
@@ -261,8 +260,7 @@ extension ImageGalleryView: UICollectionViewDataSource {
         if let smallImage = photo.smallImage {
             updateCellToDisplay(cell: imageCell, image: smallImage, photo: photo, indexPath: indexPath)
         } else {
-            guard let asset = photo.asset else { return }
-            AssetManager.resolveAsset(asset,
+            AssetManager.resolveAsset(photo.asset,
                                       size: CGSize(width: 180, height: 180),
                                       isSynchronous: false,
                                       shouldPreferLowRes: configuration.useLowResolutionPreviewImage) { [weak self, weak imageCell, weak photo] image in
