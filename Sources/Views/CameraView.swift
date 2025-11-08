@@ -202,7 +202,9 @@ class CameraView: UIViewController {
                 self?.myInsertedIdentifiers.insert(localIdentifier)
             },
             onPhotoTaken: { image in
-                photo.image = image
+                if let image {
+                    photo.setOriginalImageAndBuildThumbnail(image)
+                }
                 completion(photo)
             },
             onPhotoSaved: { asset in

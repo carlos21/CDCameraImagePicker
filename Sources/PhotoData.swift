@@ -11,32 +11,6 @@ import Photos
 
 public class PhotoData: Equatable {
     public var asset: PHAsset?
-    public var image: UIImage? {
-        didSet {
-            guard let originalImage = image else {
-                smallImage = nil
-                return
-            }
-
-            let maxDimension: CGFloat = 180
-
-            // Determine scaling factor to maintain aspect ratio
-            let widthRatio = maxDimension / originalImage.size.width
-            let heightRatio = maxDimension / originalImage.size.height
-            let scaleFactor = min(widthRatio, heightRatio)
-
-            // Calculate new size maintaining aspect ratio
-            let targetSize = CGSize(width: originalImage.size.width * scaleFactor,
-                                    height: originalImage.size.height * scaleFactor)
-
-            // Use UIGraphicsImageRenderer to draw the resized image
-            let renderer = UIGraphicsImageRenderer(size: targetSize)
-            let resizedImage = renderer.image { _ in
-                originalImage.draw(in: CGRect(origin: .zero, size: targetSize))
-            }
-            smallImage = resizedImage
-        }
-    }
     public var smallImage: UIImage?
     public let tempIdentifier: String
     public var localIdentifier: String {
@@ -49,5 +23,13 @@ public class PhotoData: Equatable {
     
     public static func == (lhs: PhotoData, rhs: PhotoData) -> Bool {
         lhs.localIdentifier == rhs.localIdentifier
+    }
+    
+    public func setOriginalImageAndBuildThumbnail(_ original: UIImage) {
+        let maxDim: CGFloat = 180
+        let scale = min(maxDim / original.size.width, maxDim / original.size.height)
+        let size = CGSize(width: original.size.width * scale, height: original.size.height * scale)
+        let renderer = UIGraphicsImageRenderer(size: size)
+        smallImage = renderer.image { _ in original.draw(in: CGRect(origin: .zero, size: size)) }
     }
 }
