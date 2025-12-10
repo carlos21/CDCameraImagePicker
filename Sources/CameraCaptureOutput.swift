@@ -73,7 +73,18 @@ extension CameraCaptureOutput: AVCapturePhotoCaptureDelegate {
             assertionFailure("fileDataRepresentation() failed!!")
             return
         }
-        takePhotoCompletion?(imageData)
+        guard let image = UIImage(data: imageData) else {
+            takePhotoCompletion?(nil)
+            assertionFailure("Could not instantiate UIImage from data")
+            os_log(">>> Could not instantiate UIImage from data", log: OSLog.default, type: .error)
+            return
+        }
+        let transformedImage = image.transformedImage(interfaceOrientation: self.orientation ?? UIDevice.current.orientation.interfaceOrientation)
+        guard let transformedImageData = transformedImage.normalized().jpegData(compressionQuality: 1.0) else {
+            takePhotoCompletion?(nil)
+            return
+        }
+        takePhotoCompletion?(transformedImageData)
     }
 }
 
